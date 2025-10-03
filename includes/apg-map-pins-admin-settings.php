@@ -13,7 +13,7 @@ class Setup_APG_Map_Pins_Admin_Settings
         add_action('admin_init', array($this, 'register_settings'));
         add_action('admin_notices', array($this, 'general_admin_notice'));
 
-        add_shortcode('apgmappins', array($this, 'apgmappins_shortcode'));
+        add_shortcode('apg_map_pins', array($this, 'apgmappins_shortcode'));
     }
 
     public function menu_page()
@@ -56,6 +56,12 @@ class Setup_APG_Map_Pins_Admin_Settings
 
         add_settings_section('apgmappins_settings_styles', __('Estilos', 'apgmappins'),  array($this, 'print_section_info'),  'apgmappins-settings-styles');
         add_settings_field('styles_map_zoom', __('Zoom do mapa', 'apgmappins'), array($this, 'input_styles_map_zoom'), 'apgmappins-settings-styles', 'apgmappins_settings_styles');
+
+        // Shortcode
+        register_setting('apgmappins_shortcode', 'apgmappins_shortcode', array($this, 'shortcode_sanitize'));
+
+        add_settings_section('apgmappins_settings_shortcode', __('Shortcode', 'apgmappins'),  array($this, 'print_section_info'),  'apgmappins-settings-shortcode');
+        add_settings_field('shortcode', __('Código', 'apgmappins'), array($this, 'input_shortcode'), 'apgmappins-settings-shortcode', 'apgmappins_settings_shortcode');
     }
 
     public function input_authentication_api_key()
@@ -65,7 +71,12 @@ class Setup_APG_Map_Pins_Admin_Settings
 
     public function input_styles_map_zoom()
     {
-        printf('<input class="regular-text" type="number" name="apgmappins_styles[styles_map_zoom]" value="%s">', get_option_apgmappins('apgmappins_styles', 'styles_map_zoom' , null, 10));
+        printf('<input class="regular-text" type="number" name="apgmappins_styles[styles_map_zoom]" value="%s">', get_option_apgmappins('apgmappins_styles', 'styles_map_zoom', null, 10));
+    }
+
+    public function input_shortcode()
+    {
+        echo '<code>[apg_map_pins zoom="10"]</code>';
     }
 
     public function geral_sanitize($input)
@@ -88,15 +99,21 @@ class Setup_APG_Map_Pins_Admin_Settings
         return $inputs;
     }
 
+    public function shortcode_sanitize($input)
+    {
+        $inputs = array();
+        return $inputs;
+    }
+
     public function apgmappins_shortcode($atts, $content = null)
     {
         $a = shortcode_atts(array(
-            'id' => '',
+            'zoom' => '',
         ), $atts);
 
         ob_start();
 
-        echo "<div class='apgmappins-shortcode' data-id='{$a['id']}'></div>";
+        echo "<div class='apgmappins-shortcode' id='apgmappins-map' data-zoom='{$a['zoom']}'></div>";
         return ob_get_clean();
     }
 
@@ -118,11 +135,15 @@ class Setup_APG_Map_Pins_Admin_Settings
     public function print_section_info($args)
     {
         if (esc_html($args['id']) == 'apgmappins_settings_geral') {
-            printf('<p class="description">%s</p>', __('Configurações para a autenticação', 'apgmappins'));
+            printf('<p class="description">%s</p>', __('Configurações para a autenticação.', 'apgmappins'));
         }
 
         if (esc_html($args['id']) == 'apgmappins_settings_styles') {
-            printf('<p class="description">%s</p>',  __('Configurações para os estilos', 'apgmappins'));
+            printf('<p class="description">%s</p>',  __('Configurações para os estilos.', 'apgmappins'));
+        }
+
+        if (esc_html($args['id']) == 'apgmappins_settings_shortcode') {
+            printf('<p class="description">%s</p>',  __('Copie o código e adicione na seção quer mostrar o mapa.', 'apgmappins'));
         }
     }
 }
