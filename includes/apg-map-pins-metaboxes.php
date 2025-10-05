@@ -4,7 +4,7 @@ if (! defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-class Setup_APG_Map_Pins_Metaboxes
+class Metaboxes_Apg_Map_Pins
 {
     public function __construct()
     {
@@ -29,6 +29,7 @@ class Setup_APG_Map_Pins_Metaboxes
         $email        = isset($entries['email']['value']) ? $entries['email']['value'] : '';
         $responsible  = isset($entries['responsible']['value']) ? $entries['responsible']['value'] : '';
         $company      = isset($entries['company']['value']) ? $entries['company']['value'] : '';
+        $site         = isset($entries['site']['value']) ? $entries['site']['value'] : '';
 
         // Nonce field para proteção
         wp_nonce_field('apg_map_pins_details_save', 'apg_map_pins_details_nonce');
@@ -55,6 +56,9 @@ class Setup_APG_Map_Pins_Metaboxes
 
         $html .= '<tr><th scope="row">' . esc_html(__('Empresa', 'apgmappins')) . ':</th>';
         $html .= '<td><input type="text" name="apg_map_pin_company" value="' . esc_attr($company) . '" style="width:100%;" placeholder="AP Global Technologies"></td></tr>';
+
+        $html .= '<tr><th scope="row">' . esc_html(__('Site', 'apgmappins')) . ':</th>';
+        $html .= '<td><input type="text" name="apg_map_pin_site" value="' . esc_attr($site) . '" style="width:100%;" placeholder="apglobal.dev"></td></tr>';
 
         $html .= '</table>';
 
@@ -152,4 +156,4 @@ class Setup_APG_Map_Pins_Metaboxes
     }
 }
 
-new Setup_APG_Map_Pins_Metaboxes();
+new Metaboxes_Apg_Map_Pins();

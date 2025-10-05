@@ -19,7 +19,7 @@ define('APG_MAP_PINS_DIR_URL', plugin_dir_url(__FILE__));
 
 require APG_MAP_PINS_DIR_PATH . '/includes/helpers.php';
 require APG_MAP_PINS_DIR_PATH . '/includes/apg-map-pins-admin-settings.php';
-require APG_MAP_PINS_DIR_PATH . '/includes/apg-map-pins-setup.php';
 require APG_MAP_PINS_DIR_PATH . '/includes/apg-map-pins-cpt.php';
+require APG_MAP_PINS_DIR_PATH . '/includes/apg-map-pins-taxonomies.php';
 require APG_MAP_PINS_DIR_PATH . '/includes/apg-map-pins-metaboxes.php';
-require APG_MAP_PINS_DIR_PATH . '/includes/apg-map-pins-front.php';
+require APG_MAP_PINS_DIR_PATH . '/includes/apg-map-pins-frontend.php';

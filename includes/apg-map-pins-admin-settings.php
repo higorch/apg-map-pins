@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-class Setup_APG_Map_Pins_Admin_Settings
+class Admin_Settings_Apg_Map_Pins
 {
     public function __construct()
     {
@@ -157,4 +157,4 @@ class Setup_APG_Map_Pins_Admin_Settings
     }
 }
 
-new Setup_APG_Map_Pins_Admin_Settings();
+new Admin_Settings_Apg_Map_Pins();

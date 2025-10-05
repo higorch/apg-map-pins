@@ -4,7 +4,7 @@ if (! defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-class Setup_APG_Map_Pins
+class Frontend_Apg_Map_Pins
 {
     public function __construct()
     {
@@ -19,4 +19,4 @@ class Setup_APG_Map_Pins
     }
 }
 
-new Setup_APG_Map_Pins();
+new Frontend_Apg_Map_Pins();
