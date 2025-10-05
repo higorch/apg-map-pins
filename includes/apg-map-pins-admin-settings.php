@@ -13,7 +13,7 @@ class Setup_APG_Map_Pins_Admin_Settings
         add_action('admin_init', array($this, 'register_settings'));
         add_action('admin_notices', array($this, 'general_admin_notice'));
 
-        add_shortcode('apg_map_pins', array($this, 'apgmappins_shortcode'));
+        add_shortcode('apg_map_pins', array($this, 'apg_map_pins_shortcode'));
     }
 
     public function menu_page()
@@ -37,10 +37,10 @@ class Setup_APG_Map_Pins_Admin_Settings
         if ('toplevel_page_apgmappins' != $page) return;
 
         wp_enqueue_style('wp-color-picker');
-        wp_enqueue_style('apgmappins-admin', APG_MAP_PINS_DIR_URL . 'assets/css/admin.css', null, '1.0.0');
+        wp_enqueue_style('apgmappins-admin', APG_MAP_PINS_DIR_URL . 'assets/css/admin.css', null, '1.0.1');
 
-        wp_enqueue_script('wp-color-picker-alpha', APG_MAP_PINS_DIR_URL . 'assets/plugins/wp-color-picker-alpha.min.js', array('wp-color-picker'), '1.0.0', true);
-        wp_enqueue_script('apgmappins-admin', APG_MAP_PINS_DIR_URL . 'assets/js/admin.js', array('jquery'), '1.0.0', true);
+        wp_enqueue_script('wp-color-picker-alpha', APG_MAP_PINS_DIR_URL . 'assets/plugins/wp-color-picker-alpha.min.js', array('wp-color-picker'), '1.0.1', true);
+        wp_enqueue_script('apgmappins-admin', APG_MAP_PINS_DIR_URL . 'assets/js/admin.js', array('jquery'), '1.0.1', true);
     }
 
     public function register_settings()
@@ -104,16 +104,25 @@ class Setup_APG_Map_Pins_Admin_Settings
         $inputs = array();
         return $inputs;
     }
-
-    public function apgmappins_shortcode($atts, $content = null)
+    public function apg_map_pins_shortcode($atts, $content = null)
     {
         $a = shortcode_atts(array(
-            'zoom' => '',
+            'key' => get_option_apgmappins('apgmappins_geral', 'authentication_api_key', null, default: null),
+            'zoom' => get_option_apgmappins('apgmappins_styles', 'styles_map_zoom', null, 10),            
         ), $atts);
 
         ob_start();
 
-        echo "<div class='apgmappins-shortcode' id='apgmappins-map' data-zoom='{$a['zoom']}'></div>";
+        // Torna os dados disponíveis para a view
+        $key = $a['key'];
+        $zoom = $a['zoom'];
+
+        $view_path = APG_MAP_PINS_DIR_PATH . 'templates/frontend.php';
+
+        if (file_exists($view_path)) {
+            include $view_path;
+        }
+
         return ob_get_clean();
     }
 

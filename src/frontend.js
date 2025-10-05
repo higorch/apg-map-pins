@@ -1,5 +1,14 @@
 import { setOptions, importLibrary } from "@googlemaps/js-api-loader";
 
-setOptions({ key: "AIzaSyCYnLD0MCRlcATwL-I10i8LpjrYNbXKEM4" });
+(async function ($) {
 
-const { Map } = await importLibrary("maps");
+    let map = $("#apgmappins-map");
+    let key = map.data('key');
+
+    setOptions({ key: key });
+
+    const { Map } = await importLibrary("maps");    
+
+    // Now you can use `Map` here to initialize your Google Map
+
+})(jQuery);

@@ -1,0 +1,1 @@
+<div class="apgmappins-shortcode" id="apgmappins-map" data-key="<?php echo $key; ?>" data-zoom="<?php echo $zoom; ?>"></div>
