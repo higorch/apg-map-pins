@@ -1,0 +1,22 @@
+.apgmappins-box {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 30px;
+}
+.apgmappins-box .apgmappins-header,
+.apgmappins-box .apgmappins-content {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 30px;
+}
+.apgmappins-box #apgmappins-map {
+    width: 70%;
+    height: 400px;
+}
+.apgmappins-box #apgmappins-details {
+    display: flex;
+    flex-direction: column;
+}
