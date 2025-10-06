@@ -91,6 +91,7 @@ class Metaboxes_Apg_Map_Pins
             'email'        => 'apg_map_pin_email',
             'responsible'  => 'apg_map_pin_responsible',
             'company'      => 'apg_map_pin_company',
+            'site'         => 'apg_map_pin_site',
         ];
 
         $entries = [];

@@ -20,9 +20,9 @@ class Taxonomies_Apg_Map_Pins
 
     public function register_taxonomies()
     {
-        $this->register_taxonomy('pais', 'País', 'Países');
-        $this->register_taxonomy('estado', 'Estado', 'Estados');
-        $this->register_taxonomy('cidade', 'Cidade', 'Cidades');
+        $this->register_taxonomy('country', 'País', 'Países');
+        $this->register_taxonomy('state', 'Estado', 'Estados');
+        $this->register_taxonomy('city', 'Cidade', 'Cidades');
     }
 
     private function register_taxonomy($taxonomy, $singular, $plural)

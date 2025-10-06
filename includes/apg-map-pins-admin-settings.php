@@ -104,27 +104,6 @@ class Admin_Settings_Apg_Map_Pins
         $inputs = array();
         return $inputs;
     }
-    public function apg_map_pins_shortcode($atts, $content = null)
-    {
-        $a = shortcode_atts(array(
-            'key' => get_option_apgmappins('apgmappins_geral', 'authentication_api_key', null, default: null),
-            'zoom' => get_option_apgmappins('apgmappins_styles', 'styles_map_zoom', null, 10),            
-        ), $atts);
-
-        ob_start();
-
-        // Torna os dados disponíveis para a view
-        $key = $a['key'];
-        $zoom = $a['zoom'];
-
-        $view_path = APG_MAP_PINS_DIR_PATH . 'templates/frontend.php';
-
-        if (file_exists($view_path)) {
-            include $view_path;
-        }
-
-        return ob_get_clean();
-    }
 
     public function general_admin_notice()
     {
