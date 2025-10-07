@@ -38,6 +38,7 @@ class Frontend_Apg_Map_Pins
 
         // Torna os dados disponíveis para a view
         $key = get_option_apgmappins('apgmappins_geral', 'authentication_api_key', null, default: null);
+        $title = get_option_apgmappins('apgmappins_geral', 'map_title', null, default: __('Locais e representantes', 'apgmappins'));
         $styles = json_encode([
             "zoom" => get_option_apgmappins('apgmappins_styles', 'styles_map_zoom', null, 10),
             "water_color" => get_option_apgmappins('apgmappins_styles', 'styles_water_color', null, "#9474ff"),

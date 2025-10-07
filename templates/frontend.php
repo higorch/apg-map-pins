@@ -1,7 +1,7 @@
 <div class="apgmappins-box">
 
     <div class="apgmappins-header">
-        <h3>Locais e representantes</h3>
+        <h3><?php echo esc_attr($title); ?></h3>
         <div class="apgmappins-filter">
             <select id="apgmappins-choice"></select>
         </div>

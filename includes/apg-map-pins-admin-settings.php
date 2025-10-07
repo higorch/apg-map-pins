@@ -47,6 +47,7 @@ class Admin_Settings_Apg_Map_Pins
 
         add_settings_section('apgmappins_settings_geral',  __('Autenticação', 'apgmappins'),  array($this, 'print_section_info'),  'apgmappins-settings-geral');
         add_settings_field('authentication_api_key', __('API Key (Google Maps)', 'apgmappins'), array($this, 'input_authentication_api_key'), 'apgmappins-settings-geral', 'apgmappins_settings_geral');
+        add_settings_field('map_title', __('Titulo do mapa', 'apgmappins'), array($this, 'input_map_title'), 'apgmappins-settings-geral', 'apgmappins_settings_geral');
 
         // Styles
         register_setting('apgmappins_styles', 'apgmappins_styles', array($this, 'styles_sanitize'));
@@ -73,6 +74,11 @@ class Admin_Settings_Apg_Map_Pins
     public function input_authentication_api_key()
     {
         printf('<input class="regular-text" type="text" name="apgmappins_geral[authentication_api_key]" value="%s">', get_option_apgmappins('apgmappins_geral', 'authentication_api_key'));
+    }
+
+    public function input_map_title()
+    {
+        printf('<input class="regular-text" type="text" name="apgmappins_geral[map_title]" value="%s">', get_option_apgmappins('apgmappins_geral', 'map_title', null, __('Locais e representantes', 'apgmappins')));
     }
 
     public function input_styles_map_zoom()
@@ -139,6 +145,9 @@ class Admin_Settings_Apg_Map_Pins
 
         if (isset($input['authentication_api_key']))
             $inputs['authentication_api_key'] = sanitize_text_field($input['authentication_api_key']);
+
+        if (isset($input['map_title']))
+            $inputs['map_title'] = sanitize_text_field($input['map_title']);
 
         return $inputs;
     }
