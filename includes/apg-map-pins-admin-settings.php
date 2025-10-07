@@ -12,8 +12,6 @@ class Admin_Settings_Apg_Map_Pins
         add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
         add_action('admin_init', array($this, 'register_settings'));
         add_action('admin_notices', array($this, 'general_admin_notice'));
-
-        add_shortcode('apg_map_pins', array($this, 'apg_map_pins_shortcode'));
     }
 
     public function menu_page()

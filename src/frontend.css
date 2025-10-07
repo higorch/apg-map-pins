@@ -12,11 +12,21 @@
     align-items: center;
     gap: 30px;
 }
-.apgmappins-box #apgmappins-map {
-    width: 70%;
-    height: 400px;
+.apgmappins-box .apgmappins-header h3 {
+   font-size: 25px;
+   flex: 1;
 }
-.apgmappins-box #apgmappins-details {
+.apgmappins-box .apgmappins-header .apgmappins-filter {
+    display: flex;
+    flex-direction: column;
+    width: 30%;
+    justify-content: space-around;
+}
+.apgmappins-box .apgmappins-content #apgmappins-map {
+    width: 70%;
+    height: 500px;
+}
+.apgmappins-box .apgmappins-content #apgmappins-details {
     display: flex;
     flex-direction: column;
 }

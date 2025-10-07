@@ -1,31 +1,83 @@
-import { setOptions, importLibrary } from "@googlemaps/js-api-loader";
+import { Loader } from "@googlemaps/js-api-loader";
 
 (async function ($) {
-    $(document).ready(async function () {
 
-        const mapEl = $("#apgmappins-map");
-        if (!mapEl.length) return;
+    // ⚠️ Suprime o aviso de depreciação do Marker
+    const originalWarn = console.warn;
+    console.warn = function (...args) {
+        if (typeof args[0] === "string" && args[0].includes("google.maps.Marker is deprecated")) {
+            return; // ignora apenas este aviso específico
+        }
+        originalWarn.apply(console, args);
+    };
 
-        const key = mapEl.data("key");
-        const zoom = mapEl.data("zoom") || 6;
+    // implementaytion
+    const mapEl = $("#apgmappins-map");
+    const filterEl = $("#apgmappins-choice");
+    const key = mapEl.data("key");
+    const zoom = parseInt(mapEl.data("zoom"));
+    const loader = new Loader({ apiKey: key });
 
-        setOptions({ key });
+    let map; // variável do mapa
 
-        const { Map } = await importLibrary("maps");
-        const { Marker } = await importLibrary("marker");
+    // Estilos do mapa
+    const mapStyles = [
+        // Água em tom roxo suave
+        { featureType: "water", stylers: [{ color: "#9474ff" }] },
 
-        // Inicializa mapa
-        const map = new Map(mapEl[0], {
-            center: { lat: -16.81892962588058, lng: -49.21375223472516 }, // Brasil
-            zoom: zoom,
-        });
+        // Terreno / relevo com contraste leve
+        { featureType: "landscape", stylers: [{ color: "#F5F5F5" }, { lightness: -10 }] },
 
-        let markers = [];
-        let allLocations = [];
+        // Ruas
+        { featureType: "road", stylers: [{ color: "#FFFFFF" }] },
+        { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#4B0082" }] },
 
-        const selectEl = $("#apgmappins-filter");
+        // POIs e transporte removidos para limpeza visual
+        { featureType: "poi", stylers: [{ visibility: "off" }] },
+        { featureType: "transit", stylers: [{ visibility: "off" }] },
 
-        // 🔹 Requisição AJAX
+        // Limites administrativos com contraste suave
+        { featureType: "administrative", elementType: "geometry", stylers: [{ color: "#4B0082" }] },
+        { featureType: "administrative", elementType: "labels.text.fill", stylers: [{ color: "#4B0082" }] }
+    ];
+
+    const choicesInstance = new Choices(filterEl.get(0), {
+        removeItemButton: 'Remover',
+        placeholderValue: 'Pesquisar',
+        shouldSort: false,
+        position: 'auto',
+        loadingText: "Carregando...",
+        noResultsText: "Nenhum resultado encontrado",
+        noChoicesText: "Nenhuma opção disponível",
+        itemSelectText: false,
+        addItemText: (value) => `Pressione Enter para adicionar <b>"${value}"</b>`,
+        removeItemLabelText: (value) => `Remover item: ${value}`,
+        maxItemText: (max) => `Somente ${max} valores podem ser adicionados`,
+        classNames: []
+    });
+
+    // Inicializa o mapa
+    async function initMap() {
+        const { Map } = await loader.importLibrary("maps");
+
+        const mapOptions = {
+            center: { lat: -15.8267, lng: -47.9218 }, // valor padrão (Brasília)
+            zoom,
+            styles: mapStyles,
+            disableDefaultUI: false
+        };
+
+        map = new Map(mapEl.get(0), mapOptions);
+        loadMarkers();
+    }
+
+    // Renderiza um marcador
+    function renderMarker(markerObj) {
+        new google.maps.Marker(markerObj);
+    }
+
+    // Carrega os locais via AJAX
+    function loadMarkers() {
         $.ajax({
             url: apg_map_ajax.ajax_url,
             type: "POST",
@@ -35,103 +87,44 @@ import { setOptions, importLibrary } from "@googlemaps/js-api-loader";
                 security: apg_map_ajax.security
             },
             success: function (response) {
-                if (!response.success) return;
-                const { map: mapData, selects } = response.data;
+                if (!response.success || !response.data.map) return;
 
-                allLocations = mapData;
+                const bounds = new google.maps.LatLngBounds();
 
-                populateSelect(selects);
-                renderMarkers(allLocations);                
+                response.data.map.forEach(data => {
+                    const lat = parseFloat(data.lat);
+                    const lng = parseFloat(data.lng);
+                    if (isNaN(lat) || isNaN(lng)) return;
+
+                    const svgMarker = {
+                        path: "M12 2 C8.13 2 5 5.13 5 9 c0 5.25 7 13 7 13 s7-7.75 7-13 c0-3.87-3.13-7-7-7 Z M12 9 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0",
+                        fillColor: "#522aab",   // roxo Glia
+                        fillOpacity: 1,         // preenchimento sólido
+                        strokeColor: "#FFFFFF", // contraste elegante
+                        strokeWeight: 2,      // contorno mais fino
+                        scale: 2,             // menor tamanho do pin
+                        anchor: new google.maps.Point(12, 24),
+                    };
+
+                    renderMarker({
+                        map,
+                        position: { lat, lng },
+                        title: data.title || "Local",
+                        icon: svgMarker,
+                    });
+
+                    bounds.extend({ lat, lng });
+                });
+
+                if (!bounds.isEmpty()) map.fitBounds(bounds);
             },
             error: function (xhr, status, error) {
                 console.error("Erro ao carregar locais:", error);
             }
         });
+    }
 
-        // 🔹 Preenche o select agrupado por país
-        function populateSelect(selects) {
-            selectEl.empty().append('<option value="">Selecione uma localização</option>');
+    // Inicializa tudo
+    initMap();
 
-            Object.keys(selects).forEach(country => {
-                const optgroup = $("<optgroup>").attr("label", country);
-                Object.keys(selects[country]).forEach(label => {
-                    const item = selects[country][label];
-                    const option = $("<option>")
-                        .val(item.id)
-                        .attr("data-lat", item.lat)
-                        .attr("data-lng", item.lng)
-                        .text(label);
-                    optgroup.append(option);
-                });
-                selectEl.append(optgroup);
-            });
-
-            selectEl.on("change", function () {
-                const id = $(this).val();
-                if (!id) {
-                    renderMarkers(allLocations);
-                    return;
-                }
-
-                const location = allLocations.find(loc => loc.id == id);
-                if (location) renderMarkers([location]);
-            });
-        }
-
-        // 🔹 Renderiza os marcadores
-        function renderMarkers(locations, color = "#FF0000") { // cor padrão vermelho
-            // Remove antigos
-            markers.forEach(marker => marker.setMap(null));
-            markers = [];
-
-            if (!locations.length) return;
-
-            const bounds = new google.maps.LatLngBounds();
-
-            locations.forEach(loc => {
-                if (!loc.lat || !loc.lng) return;
-
-                // SVG customizado para o pin
-                const svgIcon = {
-                    path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z", // pin
-                    fillColor: color,
-                    fillOpacity: 1,
-                    strokeColor: "#000",
-                    strokeWeight: 1,
-                    scale: 1.5,
-                    anchor: new google.maps.Point(12, 24), // âncora do pin
-                };
-
-                const marker = new google.maps.Marker({
-                    position: { lat: parseFloat(loc.lat), lng: parseFloat(loc.lng) },
-                    map,
-                    title: loc.title,
-                    icon: svgIcon
-                });
-
-                const infoContent = `
-                    <div class="apgmappins-tooltip">
-                        <h4>${loc.title}</h4>
-                        <p><strong>Empresa:</strong> ${loc.fields.company || "-"}</p>
-                        <p><strong>Responsável:</strong> ${loc.fields.responsible || "-"}</p>
-                        <p><strong>Telefone:</strong> ${loc.fields.mobile_phone || loc.fields.landline || "-"}</p>
-                        <p><strong>Email:</strong> ${loc.fields.email || "-"}</p>
-                        <p><strong>Site:</strong> ${loc.fields.site ? `<a href="${loc.fields.site}" target="_blank">${loc.fields.site}</a>` : "-"}</p>
-                        <p><strong>Cidade:</strong> ${loc.city} - ${loc.state}, ${loc.country}</p>
-                    </div>
-                `;
-
-                const infoWindow = new google.maps.InfoWindow({ content: infoContent });
-
-                marker.addListener("click", () => {
-                    infoWindow.open(map, marker);
-                });
-
-                markers.push(marker);
-                bounds.extend(marker.getPosition());
-            });
-
-            map.fitBounds(bounds);
-        }
-    });
 })(jQuery);
