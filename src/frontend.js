@@ -16,8 +16,6 @@ import { Loader } from "@googlemaps/js-api-loader";
     const styles = mapEl.data("styles");
     const loader = new Loader({ apiKey: key });
 
-    console.log(styles);
-
     let map;
     let markers = [];
     let allLocals = []; // armazena todos os locais para renderDetails
@@ -28,10 +26,11 @@ import { Loader } from "@googlemaps/js-api-loader";
         { featureType: "landscape", stylers: [{ color: styles.landscape_color }, { lightness: -10 }] },
         { featureType: "road", stylers: [{ color: styles.road_color }] },
         { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: styles.road_labels_text_color }] },
+        { featureType: "administrative", elementType: "geometry", stylers: [{ color: styles.administrative_color }] },
+        { featureType: "administrative", elementType: "labels.text.fill", stylers: [{ color: styles.administrative_labels_text_color }] },
         { featureType: "poi", stylers: [{ visibility: "off" }] },
         { featureType: "transit", stylers: [{ visibility: "off" }] },
-        { featureType: "administrative", elementType: "geometry", stylers: [{ color: styles.administrative_color }] },
-        { featureType: "administrative", elementType: "labels.text.fill", stylers: [{ color: styles.administrative_labels_text_color }] }
+        { featureType: "administrative.locality", elementType: "labels.icon", stylers: [{ color: styles.administrative_labels_text_color, visibility: "off" }] },
     ];
 
     // --- INSTÂNCIA DO CHOICES ---

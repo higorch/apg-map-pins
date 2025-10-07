@@ -34,10 +34,10 @@ class Admin_Settings_Apg_Map_Pins
         if ('settings_page_apgmappins' != $page) return;
 
         wp_enqueue_style('wp-color-picker');
-        wp_enqueue_style('apgmappins-admin', APG_MAP_PINS_DIR_URL . 'assets/css/admin.css', null, '1.0.1');
+        wp_enqueue_style('apgmappins-admin', APG_MAP_PINS_DIR_URL . 'assets/css/admin.css', null, '1.0.2');
 
-        wp_enqueue_script('wp-color-picker-alpha', APG_MAP_PINS_DIR_URL . 'assets/plugins/wp-color-picker-alpha.min.js', array('wp-color-picker'), '1.0.1', true);
-        wp_enqueue_script('apgmappins-admin', APG_MAP_PINS_DIR_URL . 'assets/js/admin.js', array('jquery'), '1.0.1', true);
+        wp_enqueue_script('wp-color-picker-alpha', APG_MAP_PINS_DIR_URL . 'assets/plugins/wp-color-picker-alpha.min.js', array('wp-color-picker'), '1.0.2', true);
+        wp_enqueue_script('apgmappins-admin', APG_MAP_PINS_DIR_URL . 'assets/js/admin.js', array('jquery'), '1.0.2', true);
     }
 
     public function register_settings()

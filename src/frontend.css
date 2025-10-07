@@ -1,4 +1,4 @@
-/* Container geral permanece igual */
+/* Container geral */
 .apgmappins-box {
     display: flex;
     flex-direction: column;
@@ -48,28 +48,28 @@
     display: flex;
     flex-direction: column;
     width: 30%;
-    max-height: 500px; /* mesma altura do mapa */
-    overflow-y: auto;  /* barra de rolagem */
+    max-height: 500px;
+    overflow-y: auto;
     gap: 24px;
 }
 
-/* Cada item de detalhe compactado */
+/* Cada item de detalhe */
 .apgmappins-box .apgmappins-item {
     background-color: #f8f8f8;
     border-radius: 6px;
     padding: 8px 12px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.08);
     display: flex;
-    flex-wrap: wrap; /* permite que as linhas fiquem mais compactas */
+    flex-wrap: wrap;
     gap: 6px;
-    font-size: 13px; /* menor fonte */
+    font-size: 13px;
 }
 
-/* Linhas de informação compactas */
+/* Linhas de informação */
 .apgmappins-box .apgmappins-item .apgmappins-info {
     display: flex;
     justify-content: space-between;
-    flex: 1 1 100%; /* ocupa toda a largura e quebra linha se necessário */
+    flex: 1 1 100%;
 }
 
 .apgmappins-box .apgmappins-item .apgmappins-info b {
@@ -88,4 +88,55 @@
 .apgmappins-box .gm-style img {
     max-width: none !important;
     height: auto !important;
+}
+
+/* ============================= */
+/* 📱 Responsividade (mobile) */
+/* ============================= */
+@media (max-width: 992px) {
+    .apgmappins-box .apgmappins-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .apgmappins-box .apgmappins-header h3 {
+        width: 100%;
+        font-size: 20px;
+    }
+
+    .apgmappins-box .apgmappins-header .apgmappins-filter {
+        width: 100%;
+    }
+
+    .apgmappins-box .apgmappins-content {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .apgmappins-box .apgmappins-content #apgmappins-map {
+        width: 100%;
+        height: 400px;
+    }
+
+    .apgmappins-box .apgmappins-content #apgmappins-details {
+        width: 100%;
+        max-height: none;
+        order: 2; /* força detalhes abaixo do mapa */
+    }
+}
+
+@media (max-width: 600px) {
+    .apgmappins-box {
+        gap: 20px;
+    }
+
+    .apgmappins-box .apgmappins-header h3 {
+        font-size: 18px;
+    }
+
+    .apgmappins-box .apgmappins-item {
+        font-size: 12px;
+        padding: 6px 10px;
+    }
 }
