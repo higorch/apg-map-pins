@@ -84,7 +84,13 @@
     white-space: nowrap;
 }
 
-/* Corrige imagens do mapa */
+/* Corrige o mapa */
+.apgmappins-box .gm-style-iw-chr {
+  height: 10px;
+}
+.apgmappins-box .gm-style-iw-d {
+  margin-right: 30px;
+}
 .apgmappins-box .gm-style img {
     max-width: none !important;
     height: auto !important;

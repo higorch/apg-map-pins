@@ -18,7 +18,8 @@ import { Loader } from "@googlemaps/js-api-loader";
 
     let map;
     let markers = [];
-    let allLocals = []; // armazena todos os locais para renderDetails
+    let allLocals = [];
+    let currentInfoWindow = null;
 
     // --- ESTILOS DO MAPA ---
     const mapStyles = [
@@ -60,11 +61,74 @@ import { Loader } from "@googlemaps/js-api-loader";
         renderMarkers();
     }
 
-    // --- CRIA MARCADOR ---
-    function createMarker({ map, position, title, icon, localId }) {
-        const marker = new google.maps.Marker({ map, position, title, icon });
-        marker.localId = localId;
+    // --- CRIA MARCADOR COM INFO WINDOW BONITO ---
+    function createMarker({ map, position, title, icon, local }) {
+        const marker = new google.maps.Marker({
+            map,
+            position,
+            title,
+            icon,
+        });
+
+        const infoWindow = new google.maps.InfoWindow({
+            content: `
+                <div style="
+                    min-width: 220px;
+                    font-family: Arial, sans-serif;
+                    border-radius: 8px;
+                    padding: 10px 14px;
+                    background-color: #fff;
+                    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+                    line-height: 1.5;
+                ">
+                    <h3 style="
+                        margin: 0 0 6px 0;
+                        font-size: 15px;
+                        font-weight: 700;
+                        color: ${styles.marker_fill_color};
+                    ">${local.fields.company || local.fields.responsible || "N/A"}</h3>
+
+                    <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                        <span style="margin-right:6px; color: ${styles.marker_fill_color};">👤</span>
+                        <span>${local.fields.responsible || "N/A"}</span>
+                    </div>
+
+                    <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                        <span style="margin-right:6px; color: ${styles.marker_fill_color};">📞</span>
+                        <span>${local.fields.landline || "N/A"}</span>
+                    </div>
+
+                    <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                        <span style="margin-right:6px; color: ${styles.marker_fill_color};">📱</span>
+                        <span>${local.fields.mobile_phone || "N/A"}</span>
+                    </div>
+
+                    <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                        <span style="margin-right:6px; color: ${styles.marker_fill_color};">✉️</span>
+                        <span>${local.fields.email || "N/A"}</span>
+                    </div>
+
+                    <div style="display: flex; align-items: center;">
+                        <span style="margin-right:6px; color: ${styles.marker_fill_color};">🌐</span>
+                        <span>${local.fields.site || "N/A"}</span>
+                    </div>
+                </div>
+                `,
+        });
+
+
+        // Fecha o InfoWindow anterior, se houver
+        google.maps.event.addListener(marker, 'click', () => {
+            if (currentInfoWindow) {
+                currentInfoWindow.close();
+            }
+            infoWindow.open(map, marker);
+            currentInfoWindow = infoWindow;
+        });
+
+        marker.localId = local.id; // mantém referência para filtro por cidade
         markers.push(marker);
+
         return marker;
     }
 
@@ -79,23 +143,22 @@ import { Loader } from "@googlemaps/js-api-loader";
         const container = $("#apgmappins-details");
         container.empty();
 
-        const filtered = selectedId
-            ? locals.filter(loc => loc.id == selectedId)
-            : locals;
+        const filtered = selectedId ? locals.filter(loc => loc.id == selectedId) : locals;
 
         filtered.forEach(loc => {
             const item = $(`
                 <div class="apgmappins-item">
-                    <div class="apgmappins-info"><b>Empresa</b><span>${loc.fields.company || "-"}</span></div>
-                    <div class="apgmappins-info"><b>Representante</b><span>${loc.fields.responsible || "-"}</span></div>
-                    <div class="apgmappins-info"><b>Telefone Fixo</b><span>${loc.fields.landline || "-"}</span></div>
-                    <div class="apgmappins-info"><b>Telefone Móvel</b><span>${loc.fields.mobile_phone || "-"}</span></div>
-                    <div class="apgmappins-info"><b>Email</b><span>${loc.fields.email || "-"}</span></div>
-                    <div class="apgmappins-info"><b>Site</b><span>${loc.fields.site || "-"}</span></div>
+                    <div class="apgmappins-info"><b>Empresa</b><span style="color: ${styles.marker_fill_color}">${loc.fields.company || "N/A"}</span></div>
+                    <div class="apgmappins-info"><b>Representante</b><span style="color: ${styles.marker_fill_color}">${loc.fields.responsible || "N/A"}</span></div>
+                    <div class="apgmappins-info"><b>Telefone Fixo</b><span style="color: ${styles.marker_fill_color}">${loc.fields.landline || "N/A"}</span></div>
+                    <div class="apgmappins-info"><b>Telefone Móvel</b><span style="color: ${styles.marker_fill_color}">${loc.fields.mobile_phone || "N/A"}</span></div>
+                    <div class="apgmappins-info"><b>Email</b><span style="color: ${styles.marker_fill_color}">${loc.fields.email || "N/A"}</span></div>
+                    <div class="apgmappins-info"><b>Site</b><span style="color: ${styles.marker_fill_color}">${loc.fields.site || "N/A"}</span></div>
                 </div>
             `);
             container.append(item);
         });
+
     }
 
     // --- RENDERIZA OS MARCADORES E POPULA O SELECT ---
@@ -136,9 +199,9 @@ import { Loader } from "@googlemaps/js-api-loader";
                     createMarker({
                         map,
                         position: { lat: parseFloat(loc.fields.latitude), lng: parseFloat(loc.fields.longitude) },
-                        title: loc.city || "Local",
+                        title: loc.fields.company || loc.fields.responsible,
                         icon: svgMarker,
-                        localId: loc.id
+                        local: loc,
                     });
 
                     bounds.extend({ lat: parseFloat(loc.fields.latitude), lng: parseFloat(loc.fields.longitude) });
@@ -177,22 +240,35 @@ import { Loader } from "@googlemaps/js-api-loader";
         // Renderiza detalhes filtrados
         renderDetails(allLocals, selectedId);
 
+        // Limpa animações anteriores
+        markers.forEach(m => m.setAnimation(null));
+
         if (!selectedId) {
             // Mostrar todos os marcadores
+            markers.forEach(marker => marker.setMap(map));
             const bounds = new google.maps.LatLngBounds();
             markers.forEach(marker => bounds.extend(marker.getPosition()));
             if (!bounds.isEmpty()) map.fitBounds(bounds);
             return;
         }
 
-        // Mostrar apenas marcador selecionado
-        const marker = markers.find(m => m.localId == selectedId);
-        if (marker) {
-            map.panTo(marker.getPosition());
-            map.setZoom(17);
-            marker.setAnimation(google.maps.Animation.BOUNCE);
-            setTimeout(() => marker.setAnimation(null), 1400);
-        }
+        // Mostrar apenas os marcadores da cidade selecionada
+        markers.forEach(marker => {
+            if (marker.localId == selectedId) {
+                marker.setMap(map);
+                marker.setAnimation(google.maps.Animation.BOUNCE);
+                setTimeout(() => marker.setAnimation(null), 1400);
+            } else {
+                marker.setMap(null); // esconde os demais
+            }
+        });
+
+        // Ajusta o mapa para caber todos os marcadores da cidade
+        const bounds = new google.maps.LatLngBounds();
+        markers
+            .filter(m => m.localId == selectedId)
+            .forEach(m => bounds.extend(m.getPosition()));
+        if (!bounds.isEmpty()) map.fitBounds(bounds);
     });
 
     // --- INICIALIZA ---
