@@ -13,8 +13,10 @@ import { Loader } from "@googlemaps/js-api-loader";
     const mapEl = $("#apgmappins-map");
     const filterEl = $("#apgmappins-choice");
     const key = mapEl.data("key");
-    const zoom = parseInt(mapEl.data("zoom")) || 5;
+    const styles = mapEl.data("styles");
     const loader = new Loader({ apiKey: key });
+
+    console.log(styles);
 
     let map;
     let markers = [];
@@ -22,14 +24,14 @@ import { Loader } from "@googlemaps/js-api-loader";
 
     // --- ESTILOS DO MAPA ---
     const mapStyles = [
-        { featureType: "water", stylers: [{ color: "#9474ff" }] },
-        { featureType: "landscape", stylers: [{ color: "#F5F5F5" }, { lightness: -10 }] },
-        { featureType: "road", stylers: [{ color: "#FFFFFF" }] },
-        { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#4B0082" }] },
+        { featureType: "water", stylers: [{ color: styles.water_color }] },
+        { featureType: "landscape", stylers: [{ color: styles.landscape_color }, { lightness: -10 }] },
+        { featureType: "road", stylers: [{ color: styles.road_color }] },
+        { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: styles.road_labels_text_color }] },
         { featureType: "poi", stylers: [{ visibility: "off" }] },
         { featureType: "transit", stylers: [{ visibility: "off" }] },
-        { featureType: "administrative", elementType: "geometry", stylers: [{ color: "#4B0082" }] },
-        { featureType: "administrative", elementType: "labels.text.fill", stylers: [{ color: "#4B0082" }] }
+        { featureType: "administrative", elementType: "geometry", stylers: [{ color: styles.administrative_color }] },
+        { featureType: "administrative", elementType: "labels.text.fill", stylers: [{ color: styles.administrative_labels_text_color }] }
     ];
 
     // --- INSTÂNCIA DO CHOICES ---
@@ -51,7 +53,7 @@ import { Loader } from "@googlemaps/js-api-loader";
 
         map = new Map(mapEl.get(0), {
             center: { lat: -15.8267, lng: -47.9218 },
-            zoom,
+            zoom: parseInt(styles.zoom),
             styles: mapStyles,
             disableDefaultUI: false,
         });
@@ -124,9 +126,9 @@ import { Loader } from "@googlemaps/js-api-loader";
                 allLocals.forEach(loc => {
                     const svgMarker = {
                         path: "M12 2 C8.13 2 5 5.13 5 9 c0 5.25 7 13 7 13 s7-7.75 7-13 c0-3.87-3.13-7-7-7 Z M12 9 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0",
-                        fillColor: "#522aab",
+                        fillColor: styles.marker_fill_color,
                         fillOpacity: 1,
-                        strokeColor: "#FFFFFF",
+                        strokeColor: styles.marker_stroke_color,
                         strokeWeight: 2,
                         scale: 2,
                         anchor: new google.maps.Point(12, 24),

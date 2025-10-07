@@ -11,7 +11,6 @@ class Admin_Settings_Apg_Map_Pins
         add_action('admin_menu', array($this, 'menu_page'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
         add_action('admin_init', array($this, 'register_settings'));
-        add_action('admin_notices', array($this, 'general_admin_notice'));
     }
 
     public function menu_page()
@@ -32,7 +31,7 @@ class Admin_Settings_Apg_Map_Pins
 
     public function enqueue_scripts($page)
     {
-        if ('toplevel_page_apgmappins' != $page) return;
+        if ('settings_page_apgmappins' != $page) return;
 
         wp_enqueue_style('wp-color-picker');
         wp_enqueue_style('apgmappins-admin', APG_MAP_PINS_DIR_URL . 'assets/css/admin.css', null, '1.0.1');
@@ -54,6 +53,15 @@ class Admin_Settings_Apg_Map_Pins
 
         add_settings_section('apgmappins_settings_styles', __('Estilos', 'apgmappins'),  array($this, 'print_section_info'),  'apgmappins-settings-styles');
         add_settings_field('styles_map_zoom', __('Zoom do mapa', 'apgmappins'), array($this, 'input_styles_map_zoom'), 'apgmappins-settings-styles', 'apgmappins_settings_styles');
+        add_settings_field('styles_water_color', __('Cor da água', 'apgmappins'), array($this, 'input_styles_water_color'), 'apgmappins-settings-styles', 'apgmappins_settings_styles');
+        add_settings_field('styles_marker_fill_color', __('Cor geral maracador', 'apgmappins'), array($this, 'input_styles_marker_fill_color'), 'apgmappins-settings-styles', 'apgmappins_settings_styles');
+        add_settings_field('styles_marker_stroke_color', __('Cor da borda marcador', 'apgmappins'), array($this, 'input_styles_marker_stroke_color'), 'apgmappins-settings-styles', 'apgmappins_settings_styles');
+
+        add_settings_field('styles_landscape_color', __('Cor da paisagem', 'apgmappins'), array($this, 'input_styles_landscape_color'), 'apgmappins-settings-styles', 'apgmappins_settings_styles');
+        add_settings_field('styles_road_color', __('Cor da estrada', 'apgmappins'), array($this, 'input_styles_road_color'), 'apgmappins-settings-styles', 'apgmappins_settings_styles');
+        add_settings_field('styles_road_labels_text_color', __('Cor textos da estrada', 'apgmappins'), array($this, 'input_styles_road_labels_text_color'), 'apgmappins-settings-styles', 'apgmappins_settings_styles');
+        add_settings_field('styles_administrative_color', __('Cor áreas administrativas', 'apgmappins'), array($this, 'input_styles_administrative_color'), 'apgmappins-settings-styles', 'apgmappins_settings_styles');
+        add_settings_field('styles_administrative_labels_text_color', __('Cor texto áreas administrativas', 'apgmappins'), array($this, 'input_styles_administrative_labels_text_color'), 'apgmappins-settings-styles', 'apgmappins_settings_styles');
 
         // Shortcode
         register_setting('apgmappins_shortcode', 'apgmappins_shortcode', array($this, 'shortcode_sanitize'));
@@ -70,6 +78,54 @@ class Admin_Settings_Apg_Map_Pins
     public function input_styles_map_zoom()
     {
         printf('<input class="regular-text" type="number" name="apgmappins_styles[styles_map_zoom]" value="%s">', get_option_apgmappins('apgmappins_styles', 'styles_map_zoom', null, 10));
+    }
+
+    public function input_styles_water_color()
+    {
+        $color = '#9474ff';
+        printf('<input class="color-picker" data-alpha-enabled="true" type="text" name="apgmappins_styles[styles_water_color]" value="%s">', get_option_apgmappins('apgmappins_styles', 'styles_water_color', null, $color));
+    }
+
+    public function input_styles_marker_fill_color()
+    {
+        $color = '#522aab';
+        printf('<input class="color-picker" data-alpha-enabled="true" type="text" name="apgmappins_styles[styles_marker_fill_color]" value="%s">', get_option_apgmappins('apgmappins_styles', 'styles_marker_fill_color', null, $color));
+    }
+
+    public function input_styles_marker_stroke_color()
+    {
+        $color = '#FFFFFF';
+        printf('<input class="color-picker" data-alpha-enabled="true" type="text" name="apgmappins_styles[styles_marker_stroke_color]" value="%s">', get_option_apgmappins('apgmappins_styles', 'styles_marker_stroke_color', null, $color));
+    }
+
+    public function input_styles_landscape_color()
+    {
+        $color = '#F5F5F5';
+        printf('<input class="color-picker" data-alpha-enabled="true" type="text" name="apgmappins_styles[styles_landscape_colo]" value="%s">', get_option_apgmappins('apgmappins_styles', 'styles_landscape_colo', null, $color));
+    }
+
+    public function input_styles_road_color()
+    {
+        $color = '#FFFFFF';
+        printf('<input class="color-picker" data-alpha-enabled="true" type="text" name="apgmappins_styles[styles_road_color]" value="%s">', get_option_apgmappins('apgmappins_styles', 'styles_road_color', null, $color));
+    }
+
+    public function input_styles_road_labels_text_color()
+    {
+        $color = '#4B0082';
+        printf('<input class="color-picker" data-alpha-enabled="true" type="text" name="apgmappins_styles[styles_road_labels_text_color]" value="%s">', get_option_apgmappins('apgmappins_styles', 'styles_road_labels_text_color', null, $color));
+    }
+
+    public function input_styles_administrative_color()
+    {
+        $color = '#9474ff';
+        printf('<input class="color-picker" data-alpha-enabled="true" type="text" name="apgmappins_styles[styles_administrative_color]" value="%s">', get_option_apgmappins('apgmappins_styles', 'styles_administrative_color', null, $color));
+    }
+
+    public function input_styles_administrative_labels_text_color()
+    {
+        $color = '#9474ff';
+        printf('<input class="color-picker" data-alpha-enabled="true" type="text" name="apgmappins_styles[styles_administrative_labels_text_color]" value="%s">', get_option_apgmappins('apgmappins_styles', 'styles_administrative_labels_text_color', null, $color));
     }
 
     public function input_shortcode()
@@ -94,6 +150,30 @@ class Admin_Settings_Apg_Map_Pins
         if (isset($input['styles_map_zoom']))
             $inputs['styles_map_zoom'] = sanitize_text_field($input['styles_map_zoom']);
 
+        if (isset($input['styles_water_color']))
+            $inputs['styles_water_color'] = sanitize_text_field($input['styles_water_color']);
+
+        if (isset($input['styles_marker_fill_color']))
+            $inputs['styles_marker_fill_color'] = sanitize_text_field($input['styles_marker_fill_color']);
+
+        if (isset($input['styles_marker_stroke_color']))
+            $inputs['styles_marker_stroke_color'] = sanitize_text_field($input['styles_marker_stroke_color']);
+
+        if (isset($input['styles_landscape_color']))
+            $inputs['styles_landscape_color'] = sanitize_text_field($input['styles_landscape_color']);
+
+        if (isset($input['styles_road_color']))
+            $inputs['styles_road_color'] = sanitize_text_field($input['styles_road_color']);
+
+        if (isset($input['styles_road_labels_text_color']))
+            $inputs['styles_road_labels_text_color'] = sanitize_text_field($input['styles_road_labels_text_color']);
+
+        if (isset($input['styles_administrative_color']))
+            $inputs['styles_administrative_color'] = sanitize_text_field($input['styles_administrative_color']);
+
+        if (isset($input['styles_administrative_labels_text_color']))
+            $inputs['styles_administrative_labels_text_color'] = sanitize_text_field($input['styles_administrative_labels_text_color']);
+
         return $inputs;
     }
 
@@ -101,21 +181,6 @@ class Admin_Settings_Apg_Map_Pins
     {
         $inputs = array();
         return $inputs;
-    }
-
-    public function general_admin_notice()
-    {
-        $screen = get_current_screen();
-
-        if ($screen->id != 'toplevel_page_apgmappins') return;
-
-        if (isset($_GET['settings-updated'])) {
-            if ($_GET['settings-updated'] === 'true') {
-                printf('<div class="%1$s"><p>%2$s</p></div>', 'notice notice-success is-dismissible', __('Configurações salvas com sucesso', 'apgmappins'));
-            } else {
-                printf('<div class="%1$s"><p>%2$s</p></div>', 'notice notice-error is-dismissible', __('Não foi possível salvar as configurações', 'apgmappins'));
-            }
-        }
     }
 
     public function print_section_info($args)

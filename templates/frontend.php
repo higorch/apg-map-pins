@@ -8,7 +8,7 @@
     </div>
 
     <div class="apgmappins-content">
-        <div id="apgmappins-map" data-key="<?php echo esc_attr($key); ?>" data-zoom="<?php echo esc_attr($zoom); ?>"></div>
+        <div id="apgmappins-map" data-key="<?php echo esc_attr($key); ?>" data-styles="<?php echo esc_attr($styles); ?>"></div>
         <div id="apgmappins-details"></div>
     </div>
 

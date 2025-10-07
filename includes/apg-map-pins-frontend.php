@@ -38,7 +38,18 @@ class Frontend_Apg_Map_Pins
 
         // Torna os dados disponíveis para a view
         $key = get_option_apgmappins('apgmappins_geral', 'authentication_api_key', null, default: null);
-        $zoom =  get_option_apgmappins('apgmappins_styles', 'styles_map_zoom', null, 10);
+        $styles = json_encode([
+            "zoom" => get_option_apgmappins('apgmappins_styles', 'styles_map_zoom', null, 10),
+
+            "water_color" => get_option_apgmappins('apgmappins_styles', 'styles_water_color', null, "#9474ff"),
+            "marker_fill_color" => get_option_apgmappins('apgmappins_styles', 'styles_marker_fill_color', null, "#522aab"),
+            "marker_stroke_color" => get_option_apgmappins('apgmappins_styles', 'styles_marker_stroke_color', null, "#FFFFFF"),
+            "landscape_color" => get_option_apgmappins('apgmappins_styles', 'styles_landscape_color', null, "#F5F5F5"),
+            "road_color" => get_option_apgmappins('apgmappins_styles', 'styles_styles_road_color', null, "#FFFFFF"),
+            "road_labels_text_color" => get_option_apgmappins('apgmappins_styles', 'styles_styles_road_labels_text_color', null, "#4B0082"),
+            "administrative_color" => get_option_apgmappins('apgmappins_styles', 'styles_styles_administrative_color', null, "#9474ff"),
+            "administrative_labels_text_color" => get_option_apgmappins('apgmappins_styles', 'styles_administrative_labels_text_color', null, "#9474ff"),
+        ]);
 
         $view_path = APG_MAP_PINS_DIR_PATH . 'templates/frontend.php';
 
