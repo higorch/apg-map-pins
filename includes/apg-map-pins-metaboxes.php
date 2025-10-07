@@ -45,7 +45,7 @@ class Metaboxes_Apg_Map_Pins
         $html .= '<tr><th scope="row">' . esc_html(__('Telefone Fixo', 'apgmappins')) . ':</th>';
         $html .= '<td><input type="text" name="apg_map_pin_landline" value="' . esc_attr($landline) . '" style="width:100%;" placeholder="+55 (62) 3200-0000"></td></tr>';
 
-        $html .= '<tr><th scope="row">' . esc_html(__('Telefone Celular', 'apgmappins')) . ':</th>';
+        $html .= '<tr><th scope="row">' . esc_html(__('Telefone Móvel', 'apgmappins')) . ':</th>';
         $html .= '<td><input type="text" name="apg_map_pin_mobile_phone" value="' . esc_attr($mobile_phone) . '" style="width:100%;" placeholder="+55 (62) 99156-0854"></td></tr>';
 
         $html .= '<tr><th scope="row">' . esc_html(__('E-mail', 'apgmappins')) . ':</th>';

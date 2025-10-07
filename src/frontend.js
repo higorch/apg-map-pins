@@ -2,7 +2,7 @@ import { Loader } from "@googlemaps/js-api-loader";
 
 (async function ($) {
 
-    // Suprime aviso de depreciação do Marker (limpo)
+    // Suprime aviso de depreciação do Marker
     const originalWarn = console.warn;
     console.warn = function (...args) {
         if (typeof args[0] === "string" && args[0].includes("google.maps.Marker is deprecated")) return;
@@ -18,6 +18,7 @@ import { Loader } from "@googlemaps/js-api-loader";
 
     let map;
     let markers = [];
+    let allLocals = []; // armazena todos os locais para renderDetails
 
     // --- ESTILOS DO MAPA ---
     const mapStyles = [
@@ -49,7 +50,7 @@ import { Loader } from "@googlemaps/js-api-loader";
         const { Map } = await loader.importLibrary("maps");
 
         map = new Map(mapEl.get(0), {
-            center: { lat: -15.8267, lng: -47.9218 }, // Brasília padrão
+            center: { lat: -15.8267, lng: -47.9218 },
             zoom,
             styles: mapStyles,
             disableDefaultUI: false,
@@ -61,7 +62,7 @@ import { Loader } from "@googlemaps/js-api-loader";
     // --- CRIA MARCADOR ---
     function createMarker({ map, position, title, icon, localId }) {
         const marker = new google.maps.Marker({ map, position, title, icon });
-        marker.localId = localId; // associa o ID do local
+        marker.localId = localId;
         markers.push(marker);
         return marker;
     }
@@ -70,6 +71,30 @@ import { Loader } from "@googlemaps/js-api-loader";
     function clearMarkers() {
         markers.forEach(marker => marker.setMap(null));
         markers = [];
+    }
+
+    // --- RENDERIZA OS DETALHES ---
+    function renderDetails(locals, selectedId = null) {
+        const container = $("#apgmappins-details");
+        container.empty();
+
+        const filtered = selectedId
+            ? locals.filter(loc => loc.id == selectedId)
+            : locals;
+
+        filtered.forEach(loc => {
+            const item = $(`
+                <div class="apgmappins-item">
+                    <div class="apgmappins-info"><b>Empresa</b><span>${loc.fields.company || "-"}</span></div>
+                    <div class="apgmappins-info"><b>Representante</b><span>${loc.fields.responsible || "-"}</span></div>
+                    <div class="apgmappins-info"><b>Telefone Fixo</b><span>${loc.fields.landline || "-"}</span></div>
+                    <div class="apgmappins-info"><b>Telefone Móvel</b><span>${loc.fields.mobile_phone || "-"}</span></div>
+                    <div class="apgmappins-info"><b>Email</b><span>${loc.fields.email || "-"}</span></div>
+                    <div class="apgmappins-info"><b>Site</b><span>${loc.fields.site || "-"}</span></div>
+                </div>
+            `);
+            container.append(item);
+        });
     }
 
     // --- RENDERIZA OS MARCADORES E POPULA O SELECT ---
@@ -88,12 +113,15 @@ import { Loader } from "@googlemaps/js-api-loader";
                 clearMarkers();
                 const bounds = new google.maps.LatLngBounds();
 
-                // Renderiza marcadores
-                response.data.map.forEach(data => {
-                    const lat = parseFloat(data.lat);
-                    const lng = parseFloat(data.lng);
-                    if (isNaN(lat) || isNaN(lng)) return;
+                // Salva todos os locais
+                allLocals = response.data.map.map(loc => ({
+                    id: loc.city.id,
+                    city: loc.city.name,
+                    fields: loc.fields
+                }));
 
+                // Renderiza marcadores
+                allLocals.forEach(loc => {
                     const svgMarker = {
                         path: "M12 2 C8.13 2 5 5.13 5 9 c0 5.25 7 13 7 13 s7-7.75 7-13 c0-3.87-3.13-7-7-7 Z M12 9 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0",
                         fillColor: "#522aab",
@@ -106,25 +134,28 @@ import { Loader } from "@googlemaps/js-api-loader";
 
                     createMarker({
                         map,
-                        position: { lat, lng },
-                        title: data.city.name || "Local",
+                        position: { lat: parseFloat(loc.fields.latitude), lng: parseFloat(loc.fields.longitude) },
+                        title: loc.city || "Local",
                         icon: svgMarker,
-                        localId: data.city.id // id único da cidade
+                        localId: loc.id
                     });
 
-                    bounds.extend({ lat, lng });
+                    bounds.extend({ lat: parseFloat(loc.fields.latitude), lng: parseFloat(loc.fields.longitude) });
                 });
 
                 if (!bounds.isEmpty()) map.fitBounds(bounds);
 
-                // Preenche o select (Choices.js)
+                // Renderiza todos os detalhes inicialmente
+                renderDetails(allLocals);
+
+                // Popula select
                 if (response.data.selects && Array.isArray(response.data.selects)) {
                     const formattedChoices = response.data.selects.map(country => ({
-                        label: country.name, // grupo
+                        label: country.name,
                         id: country.id,
                         choices: country.locals.map(local => ({
                             value: local.id,
-                            label: local.label + ' - ' + country.name, // "Cidade (Estado)",
+                            label: local.label + ' - ' + country.name
                         }))
                     }));
 
@@ -138,30 +169,26 @@ import { Loader } from "@googlemaps/js-api-loader";
         });
     }
 
-    // --- EVENTO DE SELEÇÃO NO SELECT ---
-    filterEl.on("change", async function () {
-        const selectedId = choicesInstance.getValue(true); // pega o id (value)
+    // --- EVENTO DE SELEÇÃO ---
+    filterEl.on("change", function () {
+        const selectedId = choicesInstance.getValue(true);
+
+        // Renderiza detalhes filtrados
+        renderDetails(allLocals, selectedId);
 
         if (!selectedId) {
-            // Select limpo: mostra todos os marcadores
+            // Mostrar todos os marcadores
             const bounds = new google.maps.LatLngBounds();
-            markers.forEach(marker => {
-                bounds.extend(marker.getPosition());
-            });
+            markers.forEach(marker => bounds.extend(marker.getPosition()));
             if (!bounds.isEmpty()) map.fitBounds(bounds);
             return;
         }
 
-        // Select com valor: mostra apenas o marcador selecionado
+        // Mostrar apenas marcador selecionado
         const marker = markers.find(m => m.localId == selectedId);
-
-        console.log(marker, markers);
-
         if (marker) {
             map.panTo(marker.getPosition());
-            map.setZoom(12);
-
-            // Efeito opcional (pular o marcador)
+            map.setZoom(17);
             marker.setAnimation(google.maps.Animation.BOUNCE);
             setTimeout(() => marker.setAnimation(null), 1400);
         }

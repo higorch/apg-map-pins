@@ -18,10 +18,10 @@ class Frontend_Apg_Map_Pins
     public function apg_map_pins_enqueue_scripts()
     {
         wp_enqueue_style('choicesjs', APG_MAP_PINS_DIR_URL . 'assets/plugins/choices.min.css', null, '11.1.0');
-        wp_enqueue_style('style-apg-map-pins', APG_MAP_PINS_DIR_URL . 'assets/css/frontend.css', null, '2.0.0');
+        wp_enqueue_style('style-apg-map-pins', APG_MAP_PINS_DIR_URL . 'assets/css/frontend.css', null, '2.0.2');
 
         wp_enqueue_script('choicesjs', APG_MAP_PINS_DIR_URL . 'assets/plugins/choices.min.js', array('jquery'), '11.1.0', true);
-        wp_enqueue_script('frontend-apg-map-pins', APG_MAP_PINS_DIR_URL . 'assets/js/frontend.js', array('jquery'), '2.0.0', true);
+        wp_enqueue_script('frontend-apg-map-pins', APG_MAP_PINS_DIR_URL . 'assets/js/frontend.js', array('jquery'), '2.0.2', true);
         wp_localize_script('frontend-apg-map-pins', 'apg_map_ajax', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'security' => wp_create_nonce('apg_map_ajax_nonce')

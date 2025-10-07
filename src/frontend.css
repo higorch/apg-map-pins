@@ -1,32 +1,91 @@
+/* Container geral permanece igual */
 .apgmappins-box {
     display: flex;
     flex-direction: column;
     width: 100%;
     gap: 30px;
+    font-family: Arial, sans-serif;
 }
-.apgmappins-box .apgmappins-header,
-.apgmappins-box .apgmappins-content {
-    width: 100%;
+
+/* Header */
+.apgmappins-box .apgmappins-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 30px;
+    width: 100%;
 }
+
 .apgmappins-box .apgmappins-header h3 {
-   font-size: 25px;
-   flex: 1;
+    font-size: 25px;
+    margin: 0;
+    width: 70%;
 }
+
 .apgmappins-box .apgmappins-header .apgmappins-filter {
     display: flex;
     flex-direction: column;
     width: 30%;
-    justify-content: space-around;
 }
+
+/* Conteúdo mapa + detalhes */
+.apgmappins-box .apgmappins-content {
+    display: flex;
+    gap: 30px;
+    width: 100%;
+}
+
+/* Mapa */
 .apgmappins-box .apgmappins-content #apgmappins-map {
     width: 70%;
     height: 500px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
+
+/* Detalhes */
 .apgmappins-box .apgmappins-content #apgmappins-details {
     display: flex;
     flex-direction: column;
+    width: 30%;
+    max-height: 500px; /* mesma altura do mapa */
+    overflow-y: auto;  /* barra de rolagem */
+    gap: 24px;
+}
+
+/* Cada item de detalhe compactado */
+.apgmappins-box .apgmappins-item {
+    background-color: #f8f8f8;
+    border-radius: 6px;
+    padding: 8px 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    display: flex;
+    flex-wrap: wrap; /* permite que as linhas fiquem mais compactas */
+    gap: 6px;
+    font-size: 13px; /* menor fonte */
+}
+
+/* Linhas de informação compactas */
+.apgmappins-box .apgmappins-item .apgmappins-info {
+    display: flex;
+    justify-content: space-between;
+    flex: 1 1 100%; /* ocupa toda a largura e quebra linha se necessário */
+}
+
+.apgmappins-box .apgmappins-item .apgmappins-info b {
+    color: #4B0082;
+    margin-right: 6px;
+    white-space: nowrap;
+}
+
+.apgmappins-box .apgmappins-item .apgmappins-info span {
+    color: #333;
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* Corrige imagens do mapa */
+.apgmappins-box .gm-style img {
+    max-width: none !important;
+    height: auto !important;
 }
