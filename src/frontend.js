@@ -6,6 +6,7 @@ import { Loader } from "@googlemaps/js-api-loader";
     const filterEl = $("#apgmappins-choice");
     const key = mapEl.data("key");
     const styles = mapEl.data("styles");
+    const showSidebar = mapEl.data("map_side_bar_details") === "true";
     const loader = new Loader({ apiKey: key });
 
     let map;
@@ -45,14 +46,21 @@ import { Loader } from "@googlemaps/js-api-loader";
             styles: defaultstyles,
             disableDefaultUI: false,
         });
-        renderMarkers();
+        fetchAndRenderMarkers();
     }
 
-    function createMarker({ map, position, title, local }) {
+    function rgbToHex(rgb) {
+        const result = rgb.match(/\d+/g);
+        if (!result) return '#000000';
+        return "#" + result.map(x => parseInt(x).toString(16).padStart(2, '0')).join('');
+    }
+
+    function createMarker(local) {
+        const position = { lat: parseFloat(local.fields.latitude), lng: parseFloat(local.fields.longitude) };
         const marker = new google.maps.Marker({
             map,
             position,
-            title,
+            title: local.fields.company || local.fields.responsible,
             icon: {
                 path: "M12 2 C8.13 2 5 5.13 5 9 c0 5.25 7 13 7 13 s7-7.75 7-13 c0-3.87-3.13-7-7-7 Z M12 9 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0",
                 fillColor: local.fields.marker_fill_color || "#522aab",
@@ -88,16 +96,16 @@ import { Loader } from "@googlemaps/js-api-loader";
     }
 
     function clearMarkers() {
-        markers.forEach(marker => marker.setMap(null));
+        markers.forEach(m => m.setMap(null));
         markers = [];
     }
 
     function renderDetails(locals, selectedId = null) {
+        if (!showSidebar) return;
         const container = $("#apgmappins-details");
         container.empty();
 
         const filtered = selectedId ? locals.filter(loc => loc.fields.territory == selectedId) : locals;
-
         filtered.forEach(loc => {
             const infoBlocks = [];
             if (loc.fields.company) infoBlocks.push(`<div class="apgmappins-info"><b>Empresa:</b> ${loc.fields.company}</div>`);
@@ -111,7 +119,7 @@ import { Loader } from "@googlemaps/js-api-loader";
         });
     }
 
-    function renderMarkers() {
+    function fetchAndRenderMarkers() {
         $.ajax({
             url: apg_map_ajax.ajax_url,
             type: "POST",
@@ -125,17 +133,10 @@ import { Loader } from "@googlemaps/js-api-loader";
                 const bounds = new google.maps.LatLngBounds();
 
                 allLocals.forEach(loc => {
-                    const marker = createMarker({
-                        map,
-                        position: { lat: parseFloat(loc.fields.latitude), lng: parseFloat(loc.fields.longitude) },
-                        title: loc.fields.company || loc.fields.responsible,
-                        local: loc
-                    });
-
+                    const marker = createMarker(loc);
                     bounds.extend(marker.getPosition());
                 });
 
-                // Ajuste: se só tem 1 ponto, adiciona offset para caber uma rua
                 if (allLocals.length === 1) {
                     const pos = bounds.getCenter();
                     const offset = 0.005;
@@ -146,6 +147,7 @@ import { Loader } from "@googlemaps/js-api-loader";
                 map.fitBounds(bounds);
                 renderDetails(allLocals);
 
+                // Configura Choices
                 if (response.data.selects && Array.isArray(response.data.selects)) {
                     const formattedChoices = response.data.selects.map(country => ({
                         label: country.name,
@@ -160,16 +162,8 @@ import { Loader } from "@googlemaps/js-api-loader";
                     choicesInstance.setChoices(formattedChoices, "value", "label", true);
                 }
             },
-            error: function (xhr, status, error) {
-                console.error("Erro ao carregar locais:", error);
-            }
+            error: (xhr, status, error) => console.error("Erro ao carregar locais:", error)
         });
-    }
-
-    function rgbToHex(rgb) {
-        const result = rgb.match(/\d+/g);
-        if (!result) return '#000000';
-        return "#" + result.map(x => parseInt(x).toString(16).padStart(2, '0')).join('');
     }
 
     filterEl.on("change", function () {
@@ -178,19 +172,13 @@ import { Loader } from "@googlemaps/js-api-loader";
         renderDetails(allLocals, selectedId);
 
         markers.forEach(marker => {
-            if (!selectedId || marker.localId == selectedId) {
-                marker.setMap(map);
-            } else {
-                marker.setMap(null);
-            }
+            marker.setMap(!selectedId || marker.localId == selectedId ? map : null);
         });
 
         const bounds = new google.maps.LatLngBounds();
-        markers.filter(m => !selectedId || m.localId == selectedId)
-            .forEach(m => bounds.extend(m.getPosition()));
+        markers.filter(m => !selectedId || m.localId == selectedId).forEach(m => bounds.extend(m.getPosition()));
 
-        // Ajuste caso tenha apenas 1 marcador visível
-        if (bounds.isEmpty() === false && markers.filter(m => !selectedId || m.localId == selectedId).length === 1) {
+        if (!bounds.isEmpty() && markers.filter(m => !selectedId || m.localId == selectedId).length === 1) {
             const pos = bounds.getCenter();
             const offset = 0.005;
             bounds.extend({ lat: pos.lat() + offset, lng: pos.lng() + offset });

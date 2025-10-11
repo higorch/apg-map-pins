@@ -43,6 +43,9 @@
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
+.apgmappins-box .apgmappins-content.full-width-map #apgmappins-map {
+    width: 100%;
+}
 
 /* Detalhes */
 .apgmappins-box .apgmappins-content #apgmappins-details {

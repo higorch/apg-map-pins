@@ -18,11 +18,11 @@ class Frontend_Apg_Map_Pins
     public function apg_map_pins_enqueue_scripts()
     {
         wp_enqueue_style('choicesjs', APG_MAP_PINS_DIR_URL . 'assets/plugins/choices.min.css', null, '11.1.0');
-        wp_enqueue_style('style-apg-map-pins', APG_MAP_PINS_DIR_URL . 'assets/css/frontend.css', null, '2.0.8');
+        wp_enqueue_style('style-apg-map-pins', APG_MAP_PINS_DIR_URL . 'assets/css/frontend.css', null, '2.0.9');
 
         // Choices e frontend
         wp_enqueue_script('choicesjs', APG_MAP_PINS_DIR_URL . 'assets/plugins/choices.min.js', array('jquery'), '11.1.0', true);
-        wp_enqueue_script('frontend-apg-map-pins', APG_MAP_PINS_DIR_URL . 'assets/js/frontend.js', array('jquery', 'choicesjs'), '2.0.8', true);
+        wp_enqueue_script('frontend-apg-map-pins', APG_MAP_PINS_DIR_URL . 'assets/js/frontend.js', array('jquery', 'choicesjs'), '2.0.9', true);
 
         // Localize ajax + styles/key (map key must be safe to expose)
         wp_localize_script('frontend-apg-map-pins', 'apg_map_ajax', array(
@@ -41,6 +41,7 @@ class Frontend_Apg_Map_Pins
 
         // Torna os dados disponíveis para a view
         $key = get_option_apgmappins('apgmappins_geral', 'authentication_api_key', null, default: null);
+        $map_side_bar_details = get_option_apgmappins('apgmappins_geral', 'map_side_bar_details', null, default: null);
         $title = get_option_apgmappins('apgmappins_geral', 'map_title', null, default: __('Locais e representantes', 'apgmappins'));
         $styles = wp_json_encode([
             "zoom" => get_option_apgmappins('apgmappins_styles', 'styles_map_zoom', null, 10),

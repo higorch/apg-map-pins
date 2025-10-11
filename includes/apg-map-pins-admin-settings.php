@@ -59,6 +59,7 @@ class Admin_Settings_Apg_Map_Pins
         add_settings_section('apgmappins_settings_geral',  __('Autenticação', 'apgmappins'),  array($this, 'print_section_info'),  'apgmappins-settings-geral');
         add_settings_field('authentication_api_key', __('API Key (Google Maps)', 'apgmappins'), array($this, 'input_authentication_api_key'), 'apgmappins-settings-geral', 'apgmappins_settings_geral');
         add_settings_field('map_title', __('Titulo do mapa', 'apgmappins'), array($this, 'input_map_title'), 'apgmappins-settings-geral', 'apgmappins_settings_geral');
+        add_settings_field('map_side_bar_details', __('Mostrar detalhes lateral', 'apgmappins'), array($this, 'input_map_side_bar_details'), 'apgmappins-settings-geral', 'apgmappins_settings_geral');
 
         // Styles
         register_setting('apgmappins_styles', 'apgmappins_styles', array($this, 'styles_sanitize'));
@@ -66,7 +67,6 @@ class Admin_Settings_Apg_Map_Pins
         add_settings_section('apgmappins_settings_styles', __('Estilos', 'apgmappins'),  array($this, 'print_section_info'),  'apgmappins-settings-styles');
         add_settings_field('styles_map_zoom', __('Zoom do mapa', 'apgmappins'), array($this, 'input_styles_map_zoom'), 'apgmappins-settings-styles', 'apgmappins_settings_styles');
         add_settings_field('styles_water_color', __('Cor da água', 'apgmappins'), array($this, 'input_styles_water_color'), 'apgmappins-settings-styles', 'apgmappins_settings_styles');
-
         add_settings_field('styles_landscape_color', __('Cor da paisagem', 'apgmappins'), array($this, 'input_styles_landscape_color'), 'apgmappins-settings-styles', 'apgmappins_settings_styles');
         add_settings_field('styles_road_color', __('Cor da estrada', 'apgmappins'), array($this, 'input_styles_road_color'), 'apgmappins-settings-styles', 'apgmappins_settings_styles');
         add_settings_field('styles_road_labels_text_color', __('Cor textos da estrada', 'apgmappins'), array($this, 'input_styles_road_labels_text_color'), 'apgmappins-settings-styles', 'apgmappins_settings_styles');
@@ -88,6 +88,28 @@ class Admin_Settings_Apg_Map_Pins
     public function input_map_title()
     {
         printf('<input class="regular-text" type="text" name="apgmappins_geral[map_title]" value="%s">', get_option_apgmappins('apgmappins_geral', 'map_title', null, __('Locais e representantes', 'apgmappins')));
+    }
+
+    public function input_map_side_bar_details()
+    {
+        // Pega o valor salvo, se existir
+        $value = get_option_apgmappins('apgmappins_geral', 'map_side_bar_details', null);
+
+        // Se não houver valor salvo, considera "1" (Sim)
+        if ($value === null) {
+            $value = '1';
+        } else {
+            $value = (string) $value; // garante que seja string para comparação
+        }
+
+        printf(
+            '<select class="regular-text" name="apgmappins_geral[map_side_bar_details]">
+                <option value="true" %s>Sim</option>
+                <option value="false" %s>Não</option>
+            </select>',
+            $value === 'true' ? 'selected' : '',
+            $value === 'false' ? 'selected' : ''
+        );
     }
 
     public function input_styles_map_zoom()
@@ -151,6 +173,9 @@ class Admin_Settings_Apg_Map_Pins
 
         if (isset($input['map_title']))
             $inputs['map_title'] = sanitize_text_field($input['map_title']);
+
+        if (isset($input['map_side_bar_details']))
+            $inputs['map_side_bar_details'] = sanitize_text_field($input['map_side_bar_details']);
 
         return $inputs;
     }
