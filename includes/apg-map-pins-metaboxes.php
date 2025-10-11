@@ -21,6 +21,12 @@ class Metaboxes_Apg_Map_Pins
     public function apg_map_pins_details_metabox_html($post)
     {
         $entries = get_post_meta($post->ID, '_apg_map_pins_details', true);
+        $territories = get_terms([
+            'taxonomy'   => 'territories',
+            'hide_empty' => false,
+            'orderby'    => 'term_id',
+            'order'      => 'ASC', // último filho mais novo
+        ]);
 
         $marker_color = isset($entries['marker_color']['value']) ? $entries['marker_color']['value'] : '';
         $territory    = isset($entries['territory']['value']) ? $entries['territory']['value'] : '';
@@ -36,13 +42,15 @@ class Metaboxes_Apg_Map_Pins
         // Nonce field para proteção
         wp_nonce_field('apg_map_pins_details_save', 'apg_map_pins_details_nonce');
 
-        $html  = '<table class="form-table" role="presentation">';
+        $html  = '<table class="form-table apg-map-pins" role="presentation">';
 
         $html .= '<tr><th scope="row">' . esc_html(__('Cor do marcador', 'apgmappins')) . ':</th>';
         $html .= '<td><input type="text" class="color-picker" data-alpha-enabled="true" name="apg_map_pin_marker_color" value="' . esc_attr($marker_color) . '" style="width:100%;"></td></tr>';
 
         $html .= '<tr><th scope="row">' . esc_html(__('Território', 'apgmappins')) . ':</th>';
-        $html .= '<td><select name="apg_map_pin_territory" value="' . esc_attr($territory) . '" style="width:100%;"></select></td></tr>';
+        $html .= '<td><select name="apg_map_pin_territory">';
+        $html .= $this->render_territory_options($territories, $territory);
+        $html .= '</select></td></tr>';
 
         $html .= '<tr><th scope="row">' . esc_html(__('Latitude', 'apgmappins')) . ':</th>';
         $html .= '<td><input type="text" name="apg_map_pin_latitude" value="' . esc_attr($latitude) . '" style="width:100%;" placeholder="-16.818873157462946"></td></tr>';
@@ -101,7 +109,7 @@ class Metaboxes_Apg_Map_Pins
             'email'        => 'apg_map_pin_email',
             'responsible'  => 'apg_map_pin_responsible',
             'company'      => 'apg_map_pin_company',
-            'site'         => 'apg_map_pin_site',            
+            'site'         => 'apg_map_pin_site',
         ];
 
         $entries = [];
@@ -164,6 +172,34 @@ class Metaboxes_Apg_Map_Pins
 
         // Atualiza meta — WP cuidará da serialização segura
         update_post_meta($post_id, '_apg_map_pins_details', $entries);
+    }
+
+    private function render_territory_options($terms, $selected = 0)
+    {
+        $html = '';
+
+        // Pega os termos de nível raiz (pais)
+        $parents = array_filter($terms, fn($t) => $t->parent == 0);
+
+        foreach ($parents as $parent) {
+            // Pega os filhos do pai atual
+            $children = array_filter($terms, fn($t) => $t->parent == $parent->term_id);
+
+            if ($children) {
+                // Cria optgroup para o pai
+                $html .= '<optgroup label="' . esc_html($parent->name) . '">';
+
+                foreach ($children as $child) {
+                    // O nome do filho já contém a sigla, ex: "Aparecida de Goiânia (GO)"
+                    $is_selected = selected($selected, $child->term_id, false);
+                    $html .= '<option value="' . esc_attr($child->term_id) . '" ' . $is_selected . '>' . esc_html($child->name) . '</option>';
+                }
+
+                $html .= '</optgroup>';
+            }
+        }
+
+        return $html;
     }
 }
 

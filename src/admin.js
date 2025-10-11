@@ -6,7 +6,7 @@
 
     const choicesInstance = new Choices(territoryEl.get(0), {
         removeItemButton: true,
-        placeholderValue: "Pesquisar",
+        placeholderValue: "Selecione o território",
         shouldSort: false,
         position: "auto",
         searchResultLimit: 50,
