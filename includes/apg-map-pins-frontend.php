@@ -1,7 +1,7 @@
 <?php
 
 if (! defined('ABSPATH')) {
-    exit; // Exit if accessed directly
+    exit;
 }
 
 class Frontend_Apg_Map_Pins
@@ -18,32 +18,33 @@ class Frontend_Apg_Map_Pins
     public function apg_map_pins_enqueue_scripts()
     {
         wp_enqueue_style('choicesjs', APG_MAP_PINS_DIR_URL . 'assets/plugins/choices.min.css', null, '11.1.0');
-        wp_enqueue_style('style-apg-map-pins', APG_MAP_PINS_DIR_URL . 'assets/css/frontend.css', null, '2.0.5');
+        wp_enqueue_style('style-apg-map-pins', APG_MAP_PINS_DIR_URL . 'assets/css/frontend.css', null, '2.0.8');
 
+        // Choices e frontend
         wp_enqueue_script('choicesjs', APG_MAP_PINS_DIR_URL . 'assets/plugins/choices.min.js', array('jquery'), '11.1.0', true);
-        wp_enqueue_script('frontend-apg-map-pins', APG_MAP_PINS_DIR_URL . 'assets/js/frontend.js', array('jquery'), '2.0.5', true);
+        wp_enqueue_script('frontend-apg-map-pins', APG_MAP_PINS_DIR_URL . 'assets/js/frontend.js', array('jquery', 'choicesjs'), '2.0.8', true);
+
+        // Localize ajax + styles/key (map key must be safe to expose)
         wp_localize_script('frontend-apg-map-pins', 'apg_map_ajax', array(
             'ajax_url' => admin_url('admin-ajax.php'),
-            'security' => wp_create_nonce('apg_map_ajax_nonce')
+            'security' => wp_create_nonce('apg_map_ajax_nonce'),
         ));
     }
 
     public function apg_map_pins_shortcode($atts, $content = null)
     {
-        $a = shortcode_atts(array(
-            'id' => '',
-        ), $atts);
+        // $a = shortcode_atts(array(
+        //     'id' => '',
+        // ), $atts);
 
         ob_start();
 
         // Torna os dados disponíveis para a view
         $key = get_option_apgmappins('apgmappins_geral', 'authentication_api_key', null, default: null);
         $title = get_option_apgmappins('apgmappins_geral', 'map_title', null, default: __('Locais e representantes', 'apgmappins'));
-        $styles = json_encode([
+        $styles = wp_json_encode([
             "zoom" => get_option_apgmappins('apgmappins_styles', 'styles_map_zoom', null, 10),
             "water_color" => get_option_apgmappins('apgmappins_styles', 'styles_water_color', null, "#9474ff"),
-            "marker_fill_color" => get_option_apgmappins('apgmappins_styles', 'styles_marker_fill_color', null, "#522aab"),
-            "marker_stroke_color" => get_option_apgmappins('apgmappins_styles', 'styles_marker_stroke_color', null, "#FFFFFF"),
             "landscape_color" => get_option_apgmappins('apgmappins_styles', 'styles_landscape_color', null, "#F5F5F5"),
             "road_color" => get_option_apgmappins('apgmappins_styles', 'styles_road_color', null, "#FFFFFF"),
             "road_labels_text_color" => get_option_apgmappins('apgmappins_styles', 'styles_road_labels_text_color', null, "#4B0082"),
@@ -60,6 +61,10 @@ class Frontend_Apg_Map_Pins
         return ob_get_clean();
     }
 
+    /**
+     * AJAX: retorna locais para o mapa e estrutura para o select agrupado por país (termo pai)
+     * Usa a taxonomia 'territories' com hierarquia máxima pai > filho.
+     */
     public function get_locations()
     {
         check_ajax_referer('apg_map_ajax_nonce', 'security');
@@ -79,31 +84,51 @@ class Frontend_Apg_Map_Pins
                 $query->the_post();
                 $post_id = get_the_ID();
 
-                // --- TAXONOMIAS ---
-                $country_terms = wp_get_post_terms($post_id, 'country');
-                $state_terms   = wp_get_post_terms($post_id, 'state');
-                $city_terms    = wp_get_post_terms($post_id, 'city');
+                // --- PEGA O ID DO TERRITÓRIO SALVO NA METABOX ---
+                $entries = get_post_meta($post_id, '_apg_map_pins_details', true);
+                $territory_id = $entries['territory']['value'] ?? 0;
 
-                $country_id   = !empty($country_terms) ? $country_terms[0]->term_id : 0;
-                $state_id     = !empty($state_terms) ? $state_terms[0]->term_id : 0;
-                $city_id      = !empty($city_terms) ? $city_terms[0]->term_id : 0;
+                if (!$territory_id) {
+                    continue; // sem territory selecionado
+                }
 
-                $country_name = !empty($country_terms) ? $country_terms[0]->name : 'Sem país';
-                $state_name   = !empty($state_terms) ? $state_terms[0]->name : 'Sem estado';
-                $city_name    = !empty($city_terms) ? $city_terms[0]->name : 'Sem cidade';
+                // --- PEGA O TERMO PELO ID ---
+                $child_term = get_term($territory_id, 'territories');
+                if (!$child_term || is_wp_error($child_term)) {
+                    continue;
+                }
+
+                // --- VERIFICA PAI ---
+                if (!$child_term->parent) {
+                    continue; // o termo salvo é pai, pulamos
+                }
+
+                $parent_term = get_term($child_term->parent, 'territories');
+                $parent_id   = $parent_term ? $parent_term->term_id : 0;
+                $parent_name = $parent_term ? $parent_term->name : 'Sem país';
+
+                $child_id   = $child_term->term_id;
+                $child_name = $child_term->name;
 
                 // --- METABOXES ---
-                $entries = get_post_meta($post_id, '_apg_map_pins_details', true);
                 $fields = [
-                    'latitude'     => $entries['latitude']['value'] ?? '',
-                    'longitude'    => $entries['longitude']['value'] ?? '',
-                    'landline'     => $entries['landline']['value'] ?? '',
-                    'mobile_phone' => $entries['mobile_phone']['value'] ?? '',
-                    'email'        => $entries['email']['value'] ?? '',
-                    'responsible'  => $entries['responsible']['value'] ?? '',
-                    'company'      => $entries['company']['value'] ?? '',
-                    'site'         => $entries['site']['value'] ?? '',
+                    'marker_fill_color'     => $entries['marker_fill_color']['value'] ?? '',
+                    'marker_stroke_color'   => $entries['marker_stroke_color']['value'] ?? '',
+                    'territory'             => $entries['territory']['value'] ?? '',
+                    'latitude'              => $entries['latitude']['value'] ?? '',
+                    'longitude'             => $entries['longitude']['value'] ?? '',
+                    'landline'              => $entries['landline']['value'] ?? '',
+                    'mobile_phone'          => $entries['mobile_phone']['value'] ?? '',
+                    'email'                 => $entries['email']['value'] ?? '',
+                    'responsible'           => $entries['responsible']['value'] ?? '',
+                    'company'               => $entries['company']['value'] ?? '',
+                    'site'                  => $entries['site']['value'] ?? '',
                 ];
+
+                // Ignora se lat/lng inválidos
+                if ($fields['latitude'] === '' || $fields['longitude'] === '') {
+                    continue;
+                }
 
                 // --- FLATTENED STRUCTURE PARA MAPA ---
                 $locations[] = [
@@ -111,40 +136,31 @@ class Frontend_Apg_Map_Pins
                     'title'   => get_the_title(),
                     'lat'     => $fields['latitude'],
                     'lng'     => $fields['longitude'],
-                    'country' => $country_name,
-                    'state'   => [
-                        'id' => $state_id,
-                        'name' => $state_name
-                    ],
-                    'city'    => [
-                        'id' => $city_id,
-                        'name' => $city_name
-                    ],
+                    'country' => $parent_name,
+                    'state'   => ['id' => $parent_id, 'name' => $parent_name],
+                    'city'    => ['id' => $child_id,  'name' => $child_name],
                     'fields'  => $fields,
                 ];
 
-                // --- AGRUPAMENTO PARA SELECT SIMPLIFICADO ---
-                if (!isset($selects[$country_id])) {
-                    $selects[$country_id] = [
-                        'id'     => $country_id,
-                        'name'   => $country_name,
+                // --- AGRUPAMENTO PARA SELECT (país -> cidades) ---
+                if (!isset($selects[$parent_id])) {
+                    $selects[$parent_id] = [
+                        'id'     => $parent_id,
+                        'name'   => $parent_name,
                         'locals' => [],
                     ];
                 }
 
-                // Monta a label “Cidade (Estado)”
-                $label = sprintf('%s (%s)', $city_name, $state_name);
-
-                // Evita duplicados de cidade dentro do país
+                // Evita duplicados de cidades
                 $exists = array_filter(
-                    $selects[$country_id]['locals'],
-                    fn($local) => $local['id'] === $city_id
+                    $selects[$parent_id]['locals'],
+                    fn($local) => $local['id'] === $child_id
                 );
 
                 if (empty($exists)) {
-                    $selects[$country_id]['locals'][] = [
-                        'id'    => $city_id,
-                        'label' => $label,
+                    $selects[$parent_id]['locals'][] = [
+                        'id'    => $child_id,
+                        'label' => $child_name,
                     ];
                 }
             }
@@ -152,7 +168,7 @@ class Frontend_Apg_Map_Pins
             wp_reset_postdata();
         }
 
-        // Remove as chaves associativas (para manter índice natural)
+        // Reindexa selects para array (Choices espera array)
         $selects = array_values($selects);
 
         wp_send_json_success([

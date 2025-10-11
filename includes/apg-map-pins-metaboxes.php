@@ -28,7 +28,8 @@ class Metaboxes_Apg_Map_Pins
             'order'      => 'ASC', // último filho mais novo
         ]);
 
-        $marker_color = isset($entries['marker_color']['value']) ? $entries['marker_color']['value'] : '';
+        $marker_fill_color = isset($entries['marker_fill_color']['value']) ? $entries['marker_fill_color']['value'] : '#522aab';
+        $marker_stroke_color = isset($entries['marker_stroke_color']['value']) ? $entries['marker_stroke_color']['value'] : '#FFFFFF';
         $territory    = isset($entries['territory']['value']) ? $entries['territory']['value'] : '';
         $latitude     = isset($entries['latitude']['value']) ? $entries['latitude']['value'] : '';
         $longitude    = isset($entries['longitude']['value']) ? $entries['longitude']['value'] : '';
@@ -44,8 +45,11 @@ class Metaboxes_Apg_Map_Pins
 
         $html  = '<table class="form-table apg-map-pins" role="presentation">';
 
-        $html .= '<tr><th scope="row">' . esc_html(__('Cor do marcador', 'apgmappins')) . ':</th>';
-        $html .= '<td><input type="text" class="color-picker" data-alpha-enabled="true" name="apg_map_pin_marker_color" value="' . esc_attr($marker_color) . '" style="width:100%;"></td></tr>';
+        $html .= '<tr><th scope="row">' . esc_html(__('Cor geral maracador', 'apgmappins')) . ':</th>';
+        $html .= '<td><input type="text" class="color-picker" data-alpha-enabled="true" name="apg_map_pin_marker_fill_color" value="' . esc_attr($marker_fill_color) . '" style="width:100%;"></td></tr>';
+
+        $html .= '<tr><th scope="row">' . esc_html(__('Cor da borda marcador', 'apgmappins')) . ':</th>';
+        $html .= '<td><input type="text" class="color-picker" data-alpha-enabled="true" name="apg_map_pin_marker_stroke_color" value="' . esc_attr($marker_stroke_color) . '" style="width:100%;"></td></tr>';
 
         $html .= '<tr><th scope="row">' . esc_html(__('Território', 'apgmappins')) . ':</th>';
         $html .= '<td><select name="apg_map_pin_territory">';
@@ -100,16 +104,17 @@ class Metaboxes_Apg_Map_Pins
 
         // Definição dos campos esperados
         $fields = [
-            'marker_color' => 'apg_map_pin_marker_color',
-            'territory'    => 'apg_map_pin_territory',
-            'latitude'     => 'apg_map_pin_latitude',
-            'longitude'    => 'apg_map_pin_longitude',
-            'landline'     => 'apg_map_pin_landline',
-            'mobile_phone' => 'apg_map_pin_mobile_phone',
-            'email'        => 'apg_map_pin_email',
-            'responsible'  => 'apg_map_pin_responsible',
-            'company'      => 'apg_map_pin_company',
-            'site'         => 'apg_map_pin_site',
+            'marker_fill_color'   => 'apg_map_pin_marker_fill_color',
+            'marker_stroke_color' => 'apg_map_pin_marker_stroke_color',
+            'territory'           => 'apg_map_pin_territory',
+            'latitude'            => 'apg_map_pin_latitude',
+            'longitude'           => 'apg_map_pin_longitude',
+            'landline'            => 'apg_map_pin_landline',
+            'mobile_phone'        => 'apg_map_pin_mobile_phone',
+            'email'               => 'apg_map_pin_email',
+            'responsible'         => 'apg_map_pin_responsible',
+            'company'             => 'apg_map_pin_company',
+            'site'                => 'apg_map_pin_site',
         ];
 
         $entries = [];

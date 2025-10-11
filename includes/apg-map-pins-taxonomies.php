@@ -8,13 +8,13 @@ class Taxonomies_Apg_Map_Pins
 {
     public function __construct()
     {
-        add_action('init', array($this, 'rewrite_flush'));
+        add_action('init', [$this, 'rewrite_flush']);
+        add_filter('taxonomy_parent_dropdown_args', [$this, 'limit_parent_dropdown_for_territories'], 10, 3);
     }
 
     public function rewrite_flush()
     {
         $this->register_taxonomies();
-
         flush_rewrite_rules();
     }
 
@@ -25,7 +25,7 @@ class Taxonomies_Apg_Map_Pins
 
     private function register_taxonomy($taxonomy, $singular, $plural)
     {
-        $labels = array(
+        $labels = [
             'name'              => $plural,
             'singular_name'     => $singular,
             'search_items'      => __('Buscar', 'apgmappins') . " $plural",
@@ -37,19 +37,35 @@ class Taxonomies_Apg_Map_Pins
             'add_new_item'      => __('Adicionar novo', 'apgmappins') . " $singular",
             'new_item_name'     => __('Nome do novo', 'apgmappins') . " $singular",
             'menu_name'         => $plural,
-        );
+        ];
 
-        $args = array(
+        $args = [
             'hierarchical'      => true,
             'labels'            => $labels,
             'show_ui'           => true,
             'show_admin_column' => false,
             'query_var'         => true,
-            'rewrite'           => array('slug' => $taxonomy),
-            'meta_box_cb'       => false
-        );
+            'rewrite'           => ['slug' => $taxonomy],
+            'meta_box_cb'       => false,
+        ];
 
-        register_taxonomy($taxonomy, array('apg-map-pins'), $args);
+        register_taxonomy($taxonomy, ['apg-map-pins'], $args);
+    }
+
+    /**
+     * Mostra apenas termos de nível 0 no dropdown "Pai" da tela de taxonomia 'territories'
+     */
+    public function limit_parent_dropdown_for_territories($args, $taxonomy, $context)
+    {
+        if ($taxonomy !== 'territories') {
+            return $args;
+        }
+
+        // limita o dropdown a termos sem pai
+        $args['parent'] = 0;
+        $args['depth']  = 1;
+
+        return $args;
     }
 }
 

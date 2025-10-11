@@ -17,9 +17,10 @@
 }
 
 .apgmappins-box .apgmappins-header h3 {
-    font-size: 25px;
+    font-size: 30px;
     margin: 0;
     width: 70%;
+    color: #555;
 }
 
 .apgmappins-box .apgmappins-header .apgmappins-filter {
@@ -73,13 +74,13 @@
 }
 
 .apgmappins-box .apgmappins-item .apgmappins-info b {
-    color: #4B0082;
+    color: #888;
     margin-right: 6px;
     white-space: nowrap;
 }
 
 .apgmappins-box .apgmappins-item .apgmappins-info span {
-    color: #333;
+    color: #555;
     text-align: right;
     white-space: nowrap;
 }

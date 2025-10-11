@@ -66,8 +66,6 @@ class Admin_Settings_Apg_Map_Pins
         add_settings_section('apgmappins_settings_styles', __('Estilos', 'apgmappins'),  array($this, 'print_section_info'),  'apgmappins-settings-styles');
         add_settings_field('styles_map_zoom', __('Zoom do mapa', 'apgmappins'), array($this, 'input_styles_map_zoom'), 'apgmappins-settings-styles', 'apgmappins_settings_styles');
         add_settings_field('styles_water_color', __('Cor da água', 'apgmappins'), array($this, 'input_styles_water_color'), 'apgmappins-settings-styles', 'apgmappins_settings_styles');
-        add_settings_field('styles_marker_fill_color', __('Cor geral maracador', 'apgmappins'), array($this, 'input_styles_marker_fill_color'), 'apgmappins-settings-styles', 'apgmappins_settings_styles');
-        add_settings_field('styles_marker_stroke_color', __('Cor da borda marcador', 'apgmappins'), array($this, 'input_styles_marker_stroke_color'), 'apgmappins-settings-styles', 'apgmappins_settings_styles');
 
         add_settings_field('styles_landscape_color', __('Cor da paisagem', 'apgmappins'), array($this, 'input_styles_landscape_color'), 'apgmappins-settings-styles', 'apgmappins_settings_styles');
         add_settings_field('styles_road_color', __('Cor da estrada', 'apgmappins'), array($this, 'input_styles_road_color'), 'apgmappins-settings-styles', 'apgmappins_settings_styles');
@@ -101,12 +99,6 @@ class Admin_Settings_Apg_Map_Pins
     {
         $color = '#9474ff';
         printf('<input class="color-picker" data-alpha-enabled="true" type="text" name="apgmappins_styles[styles_water_color]" value="%s">', get_option_apgmappins('apgmappins_styles', 'styles_water_color', null, $color));
-    }
-
-    public function input_styles_marker_fill_color()
-    {
-        $color = '#522aab';
-        printf('<input class="color-picker" data-alpha-enabled="true" type="text" name="apgmappins_styles[styles_marker_fill_color]" value="%s">', get_option_apgmappins('apgmappins_styles', 'styles_marker_fill_color', null, $color));
     }
 
     public function input_styles_marker_stroke_color()
@@ -147,7 +139,7 @@ class Admin_Settings_Apg_Map_Pins
 
     public function input_shortcode()
     {
-        echo '<code>[apg_map_pins zoom="10"]</code>';
+        echo '<code>[apg_map_pins]</code>';
     }
 
     public function geral_sanitize($input)
@@ -172,12 +164,6 @@ class Admin_Settings_Apg_Map_Pins
 
         if (isset($input['styles_water_color']))
             $inputs['styles_water_color'] = sanitize_text_field($input['styles_water_color']);
-
-        if (isset($input['styles_marker_fill_color']))
-            $inputs['styles_marker_fill_color'] = sanitize_text_field($input['styles_marker_fill_color']);
-
-        if (isset($input['styles_marker_stroke_color']))
-            $inputs['styles_marker_stroke_color'] = sanitize_text_field($input['styles_marker_stroke_color']);
 
         if (isset($input['styles_landscape_color']))
             $inputs['styles_landscape_color'] = sanitize_text_field($input['styles_landscape_color']);
