@@ -22,6 +22,8 @@ class Metaboxes_Apg_Map_Pins
     {
         $entries = get_post_meta($post->ID, '_apg_map_pins_details', true);
 
+        $marker_color = isset($entries['marker_color']['value']) ? $entries['marker_color']['value'] : '';
+        $territory    = isset($entries['territory']['value']) ? $entries['territory']['value'] : '';
         $latitude     = isset($entries['latitude']['value']) ? $entries['latitude']['value'] : '';
         $longitude    = isset($entries['longitude']['value']) ? $entries['longitude']['value'] : '';
         $landline     = isset($entries['landline']['value']) ? $entries['landline']['value'] : '';
@@ -35,6 +37,12 @@ class Metaboxes_Apg_Map_Pins
         wp_nonce_field('apg_map_pins_details_save', 'apg_map_pins_details_nonce');
 
         $html  = '<table class="form-table" role="presentation">';
+
+        $html .= '<tr><th scope="row">' . esc_html(__('Cor do marcador', 'apgmappins')) . ':</th>';
+        $html .= '<td><input type="text" class="color-picker" data-alpha-enabled="true" name="apg_map_pin_marker_color" value="' . esc_attr($marker_color) . '" style="width:100%;"></td></tr>';
+
+        $html .= '<tr><th scope="row">' . esc_html(__('Território', 'apgmappins')) . ':</th>';
+        $html .= '<td><select name="apg_map_pin_territory" value="' . esc_attr($territory) . '" style="width:100%;"></select></td></tr>';
 
         $html .= '<tr><th scope="row">' . esc_html(__('Latitude', 'apgmappins')) . ':</th>';
         $html .= '<td><input type="text" name="apg_map_pin_latitude" value="' . esc_attr($latitude) . '" style="width:100%;" placeholder="-16.818873157462946"></td></tr>';
@@ -84,6 +92,8 @@ class Metaboxes_Apg_Map_Pins
 
         // Definição dos campos esperados
         $fields = [
+            'marker_color' => 'apg_map_pin_marker_color',
+            'territory'    => 'apg_map_pin_territory',
             'latitude'     => 'apg_map_pin_latitude',
             'longitude'    => 'apg_map_pin_longitude',
             'landline'     => 'apg_map_pin_landline',
@@ -91,7 +101,7 @@ class Metaboxes_Apg_Map_Pins
             'email'        => 'apg_map_pin_email',
             'responsible'  => 'apg_map_pin_responsible',
             'company'      => 'apg_map_pin_company',
-            'site'         => 'apg_map_pin_site',
+            'site'         => 'apg_map_pin_site',            
         ];
 
         $entries = [];

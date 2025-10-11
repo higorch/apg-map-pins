@@ -20,9 +20,7 @@ class Taxonomies_Apg_Map_Pins
 
     public function register_taxonomies()
     {
-        $this->register_taxonomy('country', 'País', 'Países');
-        $this->register_taxonomy('state', 'Estado', 'Estados');
-        $this->register_taxonomy('city', 'Cidade', 'Cidades');
+        $this->register_taxonomy('territories', __('Território', 'apgmappins'), __('Territórios', 'apgmappins'));
     }
 
     private function register_taxonomy($taxonomy, $singular, $plural)
@@ -30,24 +28,25 @@ class Taxonomies_Apg_Map_Pins
         $labels = array(
             'name'              => $plural,
             'singular_name'     => $singular,
-            'search_items'      => "Buscar $plural",
-            'all_items'         => "Todos os $plural",
-            'parent_item'       => "$singular pai",
-            'parent_item_colon' => "$singular pai:",
-            'edit_item'         => "Editar $singular",
-            'update_item'       => "Atualizar $singular",
-            'add_new_item'      => "Adicionar novo $singular",
-            'new_item_name'     => "Nome do novo $singular",
+            'search_items'      => __('Buscar', 'apgmappins') . " $plural",
+            'all_items'         => __('Todos os', 'apgmappins') . " $plural",
+            'parent_item'       => "$singular " . __('pai', 'apgmappins'),
+            'parent_item_colon' => "$singular " . __('pai:', 'apgmappins'),
+            'edit_item'         => __('Editar', 'apgmappins') . " $singular",
+            'update_item'       => __('Atualizar', 'apgmappins') . " $singular",
+            'add_new_item'      => __('Adicionar novo', 'apgmappins') . " $singular",
+            'new_item_name'     => __('Nome do novo', 'apgmappins') . " $singular",
             'menu_name'         => $plural,
         );
 
         $args = array(
-            'hierarchical'      => false,
+            'hierarchical'      => true,
             'labels'            => $labels,
             'show_ui'           => true,
             'show_admin_column' => false,
             'query_var'         => true,
             'rewrite'           => array('slug' => $taxonomy),
+            'meta_box_cb'       => false
         );
 
         register_taxonomy($taxonomy, array('apg-map-pins'), $args);

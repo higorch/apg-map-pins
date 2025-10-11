@@ -31,13 +31,24 @@ class Admin_Settings_Apg_Map_Pins
 
     public function enqueue_scripts($page)
     {
-        if ('settings_page_apgmappins' != $page) return;
+        $screen = get_current_screen();
+
+        $is_settings_page = ($page === 'settings_page_apgmappins');
+        $is_apg_map_pins_post_type = ($screen && $screen->post_type === 'apg-map-pins');
+
+        if (!$is_settings_page && !$is_apg_map_pins_post_type) return;
 
         wp_enqueue_style('wp-color-picker');
-        wp_enqueue_style('apgmappins-admin', APG_MAP_PINS_DIR_URL . 'assets/css/admin.css', null, '1.0.2');
+        wp_enqueue_style('choicesjs', APG_MAP_PINS_DIR_URL . 'assets/plugins/choices.min.css', null, '11.1.0');
+        wp_enqueue_style('apgmappins-admin', APG_MAP_PINS_DIR_URL . 'assets/css/admin.css', null, '1.0.3');
 
-        wp_enqueue_script('wp-color-picker-alpha', APG_MAP_PINS_DIR_URL . 'assets/plugins/wp-color-picker-alpha.min.js', array('wp-color-picker'), '1.0.2', true);
-        wp_enqueue_script('apgmappins-admin', APG_MAP_PINS_DIR_URL . 'assets/js/admin.js', array('jquery'), '1.0.2', true);
+        wp_enqueue_script('wp-color-picker-alpha', APG_MAP_PINS_DIR_URL . 'assets/plugins/wp-color-picker-alpha.js', array('wp-color-picker'), '3.0.4', true);
+        wp_enqueue_script('choicesjs', APG_MAP_PINS_DIR_URL . 'assets/plugins/choices.min.js', array('jquery'), '11.1.0', true);
+        wp_enqueue_script('apgmappins-admin', APG_MAP_PINS_DIR_URL . 'assets/js/admin.js', array('jquery'), '1.0.3', true);
+        wp_localize_script('apgmappins-admin', 'apg_map_ajax', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'security' => wp_create_nonce('apg_map_ajax_nonce')
+        ));
     }
 
     public function register_settings()

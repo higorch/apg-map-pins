@@ -15,3 +15,7 @@ mix.js("src/admin.js", "assets/js/admin.js").webpackConfig({
 mix.postCss("src/frontend.css", "assets/css/frontend.css").options({
     processCssUrls: false
 });
+
+mix.postCss("src/admin.css", "assets/css/admin.css").options({
+    processCssUrls: false
+});
