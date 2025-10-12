@@ -10,6 +10,7 @@ import { Loader } from "@googlemaps/js-api-loader";
         const showSidebar = mapEl.data("map_side_bar_details") === "true";
         const loader = new Loader({ apiKey: key });
 
+        let choicesInstance;
         let map;
         let markers = [];
         let allLocals = [];
@@ -28,7 +29,7 @@ import { Loader } from "@googlemaps/js-api-loader";
         ];
 
         if (filterEl.length > 0) {
-            const choicesInstance = new Choices(filterEl.get(0), {
+            choicesInstance = new Choices(filterEl.get(0), {
                 removeItemButton: true,
                 placeholderValue: "Pesquisar",
                 shouldSort: false,
