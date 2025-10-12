@@ -7,7 +7,7 @@ import { Loader } from "@googlemaps/js-api-loader";
         const filterEl = $("#apgmappins-choice");
         const key = mapEl.data("key");
         const styles = mapEl.data("styles");
-        const showSidebar = mapEl.data("map_side_bar_details") === "true";
+        const showSidebar = mapEl.data("map_side_bar_details");
         const loader = new Loader({ apiKey: key });
 
         let choicesInstance;
@@ -192,7 +192,6 @@ import { Loader } from "@googlemaps/js-api-loader";
         });
 
         initMap();
-
     });
 
 })(jQuery);
