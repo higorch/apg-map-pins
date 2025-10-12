@@ -40,11 +40,11 @@ class Admin_Settings_Apg_Map_Pins
 
         wp_enqueue_style('wp-color-picker');
         wp_enqueue_style('choicesjs', APG_MAP_PINS_DIR_URL . 'assets/plugins/choices.min.css', null, '11.1.0');
-        wp_enqueue_style('apgmappins-admin', APG_MAP_PINS_DIR_URL . 'assets/css/admin.css', null, '1.0.4');
+        wp_enqueue_style('apgmappins-admin', APG_MAP_PINS_DIR_URL . 'assets/css/admin.css', null, '1.0.7');
 
         wp_enqueue_script('wp-color-picker-alpha', APG_MAP_PINS_DIR_URL . 'assets/plugins/wp-color-picker-alpha.js', array('wp-color-picker'), '3.0.4', true);
         wp_enqueue_script('choicesjs', APG_MAP_PINS_DIR_URL . 'assets/plugins/choices.min.js', array('jquery'), '11.1.0', true);
-        wp_enqueue_script('apgmappins-admin', APG_MAP_PINS_DIR_URL . 'assets/js/admin.js', array('jquery'), '1.0.4', true);
+        wp_enqueue_script('apgmappins-admin', APG_MAP_PINS_DIR_URL . 'assets/js/admin.js', array('jquery'), '1.0.7', true);
         wp_localize_script('apgmappins-admin', 'apg_map_ajax', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'security' => wp_create_nonce('apg_map_ajax_nonce')
@@ -65,7 +65,6 @@ class Admin_Settings_Apg_Map_Pins
         register_setting('apgmappins_styles', 'apgmappins_styles', array($this, 'styles_sanitize'));
 
         add_settings_section('apgmappins_settings_styles', __('Estilos', 'apgmappins'),  array($this, 'print_section_info'),  'apgmappins-settings-styles');
-        add_settings_field('styles_map_zoom', __('Zoom do mapa', 'apgmappins'), array($this, 'input_styles_map_zoom'), 'apgmappins-settings-styles', 'apgmappins_settings_styles');
         add_settings_field('styles_water_color', __('Cor da água', 'apgmappins'), array($this, 'input_styles_water_color'), 'apgmappins-settings-styles', 'apgmappins_settings_styles');
         add_settings_field('styles_landscape_color', __('Cor da paisagem', 'apgmappins'), array($this, 'input_styles_landscape_color'), 'apgmappins-settings-styles', 'apgmappins_settings_styles');
         add_settings_field('styles_road_color', __('Cor da estrada', 'apgmappins'), array($this, 'input_styles_road_color'), 'apgmappins-settings-styles', 'apgmappins_settings_styles');
@@ -110,11 +109,6 @@ class Admin_Settings_Apg_Map_Pins
             $value === 'true' ? 'selected' : '',
             $value === 'false' ? 'selected' : ''
         );
-    }
-
-    public function input_styles_map_zoom()
-    {
-        printf('<input class="regular-text" type="number" name="apgmappins_styles[styles_map_zoom]" value="%s">', get_option_apgmappins('apgmappins_styles', 'styles_map_zoom', null, 10));
     }
 
     public function input_styles_water_color()
@@ -183,10 +177,7 @@ class Admin_Settings_Apg_Map_Pins
     public function styles_sanitize($input)
     {
         $inputs = array();
-
-        if (isset($input['styles_map_zoom']))
-            $inputs['styles_map_zoom'] = sanitize_text_field($input['styles_map_zoom']);
-
+        
         if (isset($input['styles_water_color']))
             $inputs['styles_water_color'] = sanitize_text_field($input['styles_water_color']);
 

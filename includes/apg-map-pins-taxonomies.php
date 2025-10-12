@@ -8,14 +8,13 @@ class Taxonomies_Apg_Map_Pins
 {
     public function __construct()
     {
-        add_action('init', [$this, 'rewrite_flush']);
-        add_filter('taxonomy_parent_dropdown_args', [$this, 'limit_parent_dropdown_for_territories'], 10, 3);
-    }
+        add_action('init', [$this, 'register_taxonomies']);
 
-    public function rewrite_flush()
-    {
-        $this->register_taxonomies();
-        flush_rewrite_rules();
+        // Substitui o dropdown "Pai" apenas para 'territories'
+        add_filter('wp_dropdown_cats', [$this, 'filter_territory_parent_dropdown'], 10, 2);
+
+        // JS: evita que AJAX adicione filhos no select de parent
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_js']);
     }
 
     public function register_taxonomies()
@@ -53,19 +52,44 @@ class Taxonomies_Apg_Map_Pins
     }
 
     /**
-     * Mostra apenas termos de nível 0 no dropdown "Pai" da tela de taxonomia 'territories'
+     * Substitui o HTML do dropdown "Pai" para listar apenas termos raiz
      */
-    public function limit_parent_dropdown_for_territories($args, $taxonomy, $context)
+    public function filter_territory_parent_dropdown($output, $args)
     {
-        if ($taxonomy !== 'territories') {
-            return $args;
+        if (empty($args['taxonomy']) || !in_array($args['taxonomy'], ['territories'])) {
+            return $output;
         }
 
-        // limita o dropdown a termos sem pai
-        $args['parent'] = 0;
-        $args['depth']  = 1;
+        $output = preg_replace('/<option[^>]*class="level-[1-9][^"]*"[^>]*>.*?<\/option>/s', '', $output);
 
-        return $args;
+        return $output;
+    }
+
+    /**
+     * Adiciona JS no admin para evitar que AJAX adicione filhos no select
+     */
+    public function enqueue_admin_js($hook)
+    {
+        $taxonomy = $_GET['taxonomy'] ?? '';
+
+        if ($hook !== 'edit-tags.php' || !in_array($taxonomy, ['territories'])) {
+            return;
+        }
+
+        wp_add_inline_script('jquery-core', "
+            jQuery(document).ready(function($){
+                $(document).ajaxSuccess(function(event, xhr, settings) {
+                    if (settings.data && settings.data.includes('action=add-tag') && settings.data.includes('taxonomy=territories')) {
+                        var select = $('select#parent');
+                        select.find('option').each(function(){
+                            if (!$(this).hasClass('level-0') && $(this).val() != '-1') {
+                                $(this).remove();
+                            }
+                        });
+                    }
+                });
+            });
+        ");
     }
 }
 

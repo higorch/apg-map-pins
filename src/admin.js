@@ -1,19 +1,26 @@
 (function ($) {
 
-    $(".color-picker").wpColorPicker();
+    $(document).ready(function () {
 
-    let territoryEl = $('select[name="apg_map_pin_territory"]');
+        $(".color-picker").wpColorPicker();
 
-    const choicesInstance = new Choices(territoryEl.get(0), {
-        removeItemButton: true,
-        placeholderValue: "Selecione o território",
-        shouldSort: false,
-        position: "auto",
-        searchResultLimit: 50,
-        loadingText: "Carregando...",
-        noResultsText: "Nenhum resultado encontrado",
-        noChoicesText: "Nenhuma opção disponível",
-        itemSelectText: ""
+        let territoryEl = $('select[name="apg_map_pin_territory"]');
+
+        // Verifica se o elemento existe
+        if (territoryEl.length > 0) {
+            const choicesInstance = new Choices(territoryEl.get(0), {
+                removeItemButton: true,
+                placeholderValue: "Selecione o território",
+                shouldSort: false,
+                position: "auto",
+                searchResultLimit: 50,
+                loadingText: "Carregando...",
+                noResultsText: "Nenhum resultado encontrado",
+                noChoicesText: "Nenhuma opção disponível",
+                itemSelectText: ""
+            });
+        }
+
     });
 
 })(jQuery);
