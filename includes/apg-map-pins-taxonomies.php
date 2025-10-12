@@ -10,7 +10,7 @@ class Taxonomies_Apg_Map_Pins
     {
         add_action('init', [$this, 'register_taxonomies']);
 
-        // Substitui o dropdown "Pai" apenas para 'territories'
+        // Substitui o dropdown "ascendente" apenas para 'territories'
         add_filter('wp_dropdown_cats', [$this, 'filter_territory_parent_dropdown'], 10, 2);
 
         // JS: evita que AJAX adicione filhos no select de parent
@@ -29,8 +29,8 @@ class Taxonomies_Apg_Map_Pins
             'singular_name'     => $singular,
             'search_items'      => __('Buscar', 'apgmappins') . " $plural",
             'all_items'         => __('Todos os', 'apgmappins') . " $plural",
-            'parent_item'       => "$singular " . __('pai', 'apgmappins'),
-            'parent_item_colon' => "$singular " . __('pai:', 'apgmappins'),
+            'parent_item'       => "$singular " . __('ascendente', 'apgmappins'),
+            'parent_item_colon' => "$singular " . __('ascendente:', 'apgmappins'),
             'edit_item'         => __('Editar', 'apgmappins') . " $singular",
             'update_item'       => __('Atualizar', 'apgmappins') . " $singular",
             'add_new_item'      => __('Adicionar novo', 'apgmappins') . " $singular",
@@ -52,7 +52,7 @@ class Taxonomies_Apg_Map_Pins
     }
 
     /**
-     * Substitui o HTML do dropdown "Pai" para listar apenas termos raiz
+     * Substitui o HTML do dropdown "ascendente" para listar apenas termos raiz
      */
     public function filter_territory_parent_dropdown($output, $args)
     {
